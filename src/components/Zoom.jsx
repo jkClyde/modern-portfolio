@@ -24,7 +24,7 @@ const ZoomParallax = () => {
                 scrollTrigger: {
                     trigger: container.current,
                     start: "top top",
-                    end: "+=2000",
+                    end: "+=1200",
                     scrub: true,
                     pin: true,
                     anticipatePin: 1,
@@ -98,11 +98,14 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div
-                    className="imageContainer w-[35vw] h-[25vh] md:h-[30vh] relative -top-[28vh] md:-top-[31vh] left-[5vw] bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: "url('/img/w1.png')" }}
-                >
-                    <div className="absolute inset-0 bg-black/10 z-10"></div>
+                <div className="imageContainer relative w-[30vw] h-[25vh] md:h-[30vh] -top-[28vh] md:-top-[29.5vh] left-[3.5vw] overflow-hidden">
+                    <img
+                        src="/img/w3.png"
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover object-top"
+                    />
+
+                    <div className="absolute inset-0 z-10 bg-black/5"></div>
                 </div>
             </div>
 
@@ -111,13 +114,11 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div className="imageContainer w-[30vw] h-[30vh] md:w-[25vw] md:h-[45vh] relative -top-[8vh] md:-top-[10vh] -left-[32vw] md:-left-[27vw]">
-                    <img
-                        src="img/image2.png"
-                        alt="image"
-                        className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 z-10"></div>
+                <div
+                    className="imageContainer relative w-[30vw] h-[30vh] md:w-[28vw] md:h-[30vh] -top-[8vh] md:-top-[10vh] -left-[32vw] md:-left-[27.5vw] overflow-hidden bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: "url('/img/w2.png')" }}
+                >
+                    <div className="absolute inset-0 z-10 bg-black/30"></div>
                 </div>
             </div>
 
@@ -126,13 +127,14 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div className="imageContainer w-[29vw] md:w-[25vw] h-[20vh] md:h-[25vh] relative left-[30vw] md:left-[27vw]">
+                <div className="imageContainer w-[29vw] md:w-[25vw] h-[20vh] md:h-[25vh] relative left-[30vw] md:left-[26vw]">
                     <img
-                        src="img/image3.png"
+                        src="img/w1.png"
                         alt="image"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover object-top"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 z-10"></div>
+
+                    <div className="absolute inset-0 bg-black/5 z-10"></div>
                 </div>
             </div>
 
@@ -141,13 +143,10 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div className="imageContainer w-[25vw] md:w-[20vw] h-[25vh] relative top-[26vh] md:top-[28vh] left-[5vw]">
-                    <img
-                        src="img/image4.jpg"
-                        alt="image"
-                        className="absolute inset-0 w-full h-full object-cover"
-                    />
-                </div>
+                <div
+                    className="imageContainer w-[25vw] md:w-[27vw] h-[25vh] relative top-[26vh] md:top-[27.5vh] left-[1.5vw] bg-cover bg-center bg-no-repeat bg-top"
+                    style={{ backgroundImage: "url('/img/w4.png')" }}
+                ></div>
             </div>
 
             <div
@@ -155,13 +154,11 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div className="imageContainer w-[30vw] h-[25vh] relative top-[24vh] md:top-[28vh] -left-[27.5vw] md:-left-[22.5vw]">
-                    <img
-                        src="img/image5.jpg"
-                        alt="image"
-                        className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-30 z-10"></div>
+                <div
+                    className="imageContainer w-[24vw] h-[25vh] relative top-[24vh] md:top-[21vh] -left-[27.5vw] md:-left-[25.5vw] bg-cover bg-center bg-no-repeat bg-top"
+                    style={{ backgroundImage: "url('/img/w5.png')" }}
+                >
+                    <div className="absolute inset-0 bg-black/30 z-10"></div>
                 </div>
             </div>
 
@@ -170,13 +167,11 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div className="imageContainer w-[22vw] md:w-[15vw] h-[15vh] relative top-[20vh] md:top-[23vh] left-[33vw] md:left-[25vw]">
-                    <img
-                        src="img/image7.png"
-                        alt="image"
-                        className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
+                <div
+                    className="imageContainer w-[22vw] md:w-[20vw] h-[20vh] relative top-[20vh] md:top-[23vh] left-[33vw] md:left-[25vw] bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: "url('/img/w6.png')" }}
+                >
+                    <div className="absolute inset-0 bg-black/50 z-10"></div>
                 </div>
             </div>
         </div>
