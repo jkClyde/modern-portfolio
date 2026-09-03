@@ -168,7 +168,7 @@ const ZoomParallax = () => {
                 style={overlayStyle}
             >
                 <div
-                    className="imageContainer w-[22vw] md:w-[20vw] h-[20vh] relative top-[20vh] md:top-[23vh] left-[33vw] md:left-[25vw] bg-cover bg-center bg-no-repeat"
+                    className="imageContainer w-[22vw] md:w-[20vw] h-[20vh] relative top-[20vh] md:top-[24vh] left-[33vw] md:left-[26vw] bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: "url('/img/w6.png')" }}
                 >
                     <div className="absolute inset-0 bg-black/50 z-10"></div>
