@@ -98,7 +98,7 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div className="imageContainer relative w-[30vw] h-[25vh] md:h-[30vh] -top-[28vh] md:-top-[29.5vh] left-[3.5vw] overflow-hidden">
+                <div className="imageContainer relative w-[50vw] h-[10vh] md:h-[30vh] -top-[18vh] md:-top-[28vh] md:-top-[29.5vh] left-[3.5vw] overflow-hidden">
                     <img
                         src="/img/w3.png"
                         alt=""
@@ -115,7 +115,7 @@ const ZoomParallax = () => {
                 style={overlayStyle}
             >
                 <div
-                    className="imageContainer relative w-[30vw] h-[30vh] md:w-[28vw] md:h-[30vh] -top-[8vh] md:-top-[10vh] -left-[32vw] md:-left-[27.5vw] overflow-hidden bg-cover bg-center bg-no-repeat"
+                    className="imageContainer relative w-[50vw] h-[10vh] md:w-[28vw] md:h-[30vh] -top-[5vh] md:-top-[8vh] md:-top-[10vh] -left-[40vw] md:-left-[32vw] md:-left-[27.5vw] overflow-hidden bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: "url('/img/w2.png')" }}
                 >
                     <div className="absolute inset-0 z-10 bg-black/30"></div>
@@ -127,7 +127,7 @@ const ZoomParallax = () => {
                 className="flex justify-center items-center"
                 style={overlayStyle}
             >
-                <div className="imageContainer w-[29vw] md:w-[25vw] h-[20vh] md:h-[25vh] relative left-[30vw] md:left-[26vw]">
+                <div className="imageContainer w-[50vw] md:w-[25vw] h-[12vh] md:h-[25vh] relative left-[40vw] md:left-[26vw] -top-[5vh] md:top-0">
                     <img
                         src="img/w1.png"
                         alt="image"
@@ -144,7 +144,7 @@ const ZoomParallax = () => {
                 style={overlayStyle}
             >
                 <div
-                    className="imageContainer w-[25vw] md:w-[27vw] h-[25vh] relative top-[26vh] md:top-[27.5vh] left-[1.5vw] bg-cover bg-center bg-no-repeat bg-top"
+                    className="imageContainer w-[50vw] md:w-[27vw] h-[10vh] relative top-[20vh] md:top-[27.5vh] left-[10.5vw] bg-cover bg-center bg-no-repeat bg-top"
                     style={{ backgroundImage: "url('/img/w4.png')" }}
                 ></div>
             </div>
@@ -155,7 +155,7 @@ const ZoomParallax = () => {
                 style={overlayStyle}
             >
                 <div
-                    className="imageContainer w-[24vw] h-[25vh] relative top-[24vh] md:top-[21vh] -left-[27.5vw] md:-left-[25.5vw] bg-cover bg-center bg-no-repeat bg-top"
+                    className="imageContainer w-[50vw] h-[12vh] relative top-[7.5vh] md:top-[24vh] md:top-[21vh] -left-[45.5vw] md:-left-[25.5vw] bg-cover bg-center bg-no-repeat bg-top"
                     style={{ backgroundImage: "url('/img/w5.png')" }}
                 >
                     <div className="absolute inset-0 bg-black/30 z-10"></div>
@@ -168,7 +168,7 @@ const ZoomParallax = () => {
                 style={overlayStyle}
             >
                 <div
-                    className="imageContainer w-[22vw] md:w-[20vw] h-[20vh] relative top-[20vh] md:top-[24vh] left-[33vw] md:left-[26vw] bg-cover bg-center bg-no-repeat"
+                    className="imageContainer w-[50vw] md:w-[20vw] h-[10vh] relative top-[8vh] md:top-[24vh] left-[45vw] md:left-[26vw] bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: "url('/img/w6.png')" }}
                 >
                     <div className="absolute inset-0 bg-black/50 z-10"></div>
