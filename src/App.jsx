@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import NavBar from "./components/Navbar";
 
-import Home from "./pages/home";
+import Home from "./pages/Home";
 import Test from "./pages/Test";
 import Stagger from "./pages/Stagger";
 import Stagger2 from "./pages/Stagger2";
