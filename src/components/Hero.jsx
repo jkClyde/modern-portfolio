@@ -24,6 +24,7 @@ const Hero = () => {
 
     // --------------------------------------------------
     // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
+    // AS ONE COMBINED, CENTERED LINE
     // --------------------------------------------------
 
     const measureContainer = document.createElement("div");
@@ -34,7 +35,7 @@ const Hero = () => {
     measureContainer.style.whiteSpace = "nowrap";
     measureContainer.style.display = "flex";
     measureContainer.style.alignItems = "baseline";
-    measureContainer.style.gap = "50px";
+    measureContainer.style.gap = "40px"; // space between words, tune as needed
 
     // Clone classes so font-size/weight match the real headings.
     const firstClone = firstName.cloneNode(true);
@@ -145,7 +146,6 @@ const Hero = () => {
 
   return (
     <div className="relative h-dvh w-screen overflow-x-hidden">
-
       {/* LOADER */}
       {loading && (
         <div className="flex-center absolute z-[100] h-dvh w-screen overflow-hidden bg-violet-50">
@@ -162,7 +162,6 @@ const Hero = () => {
         id="video-frame"
         className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-white"
       >
-
         {/* VIDEO */}
         <video
           id="hero-video"
@@ -182,12 +181,8 @@ const Hero = () => {
         {/* CONTENT */}
         <div className="absolute left-0 top-0 z-40 size-full">
           <div className="mt-24 px-5 sm:px-10">
-
             {/* FIRST NAME */}
-            <h1
-              id="first-name"
-              className="special-font hero-heading text-blue-100"
-            >
+            <h1 id="first-name" className="special-font hero-heading text-blue-100">
               RANDALL
             </h1>
 
@@ -206,10 +201,10 @@ const Hero = () => {
                 containerClass="bg-yellow-300 flex-center gap-1"
               />
             </div>
-
           </div>
         </div>
       </div>
+
       <h1 className="special-font hero-heading absolute bottom-5 right-5 text-black">
         AQUIN
       </h1>
