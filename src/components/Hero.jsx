@@ -106,6 +106,7 @@ const Hero = () => {
         opacity: 1,
         duration: 2,
         ease: "power2.inOut",
+        delay: 0.2
       },
       0
     );
@@ -127,6 +128,8 @@ const Hero = () => {
         opacity: 1,
         duration: 2,
         ease: "power2.inOut",
+        delay: 0.2
+
       },
       0
     );
