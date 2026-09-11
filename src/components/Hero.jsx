@@ -23,52 +23,74 @@ const Hero = () => {
     if (!video || !firstName || !lastName) return;
 
     // --------------------------------------------------
-    // GET ORIGINAL POSITION
+    // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
+    // --------------------------------------------------
+
+    const measureContainer = document.createElement("div");
+    measureContainer.style.position = "fixed";
+    measureContainer.style.top = "0";
+    measureContainer.style.left = "0";
+    measureContainer.style.visibility = "hidden";
+    measureContainer.style.whiteSpace = "nowrap";
+    measureContainer.style.display = "flex";
+    measureContainer.style.alignItems = "baseline";
+    measureContainer.style.gap = "50px";
+
+    // Clone classes so font-size/weight match the real headings.
+    const firstClone = firstName.cloneNode(true);
+    const lastClone = lastName.cloneNode(true);
+
+    // Reset any absolute positioning inherited from the originals.
+    firstClone.style.position = "static";
+    lastClone.style.position = "static";
+    firstClone.style.opacity = "1";
+    lastClone.style.opacity = "1";
+
+    measureContainer.appendChild(firstClone);
+    measureContainer.appendChild(lastClone);
+    document.body.appendChild(measureContainer);
+
+    // Center this combined block on screen.
+    const combinedRect = measureContainer.getBoundingClientRect();
+    const combinedCenterX = window.innerWidth / 2;
+    const combinedCenterY = window.innerHeight / 2;
+    const combinedLeft = combinedCenterX - combinedRect.width / 2;
+    const combinedTop = combinedCenterY - combinedRect.height / 2;
+
+    const firstCloneRect = firstClone.getBoundingClientRect();
+    const lastCloneRect = lastClone.getBoundingClientRect();
+
+    // Where each word WOULD be, in the centered combined line.
+    const targetFirstLeft = combinedLeft + (firstCloneRect.left - combinedRect.left);
+    const targetFirstTop = combinedTop + (firstCloneRect.top - combinedRect.top);
+
+    const targetLastLeft = combinedLeft + (lastCloneRect.left - combinedRect.left);
+    const targetLastTop = combinedTop + (lastCloneRect.top - combinedRect.top);
+
+    document.body.removeChild(measureContainer);
+
+    // --------------------------------------------------
+    // NOW COMPARE TO EACH WORD'S ACTUAL NATURAL POSITION
     // --------------------------------------------------
 
     const firstRect = firstName.getBoundingClientRect();
+    const lastRect = lastName.getBoundingClientRect();
 
-    const firstX =
-      window.innerWidth / 2 -
-      (firstRect.left + firstRect.width / 2);
+    const firstX = targetFirstLeft - firstRect.left;
+    const firstY = targetFirstTop - firstRect.top;
 
-    const firstY =
-      window.innerHeight / 2 -
-      (firstRect.top + firstRect.height / 2);
+    const lastX = targetLastLeft - lastRect.left;
+    const lastY = targetLastTop - lastRect.top;
 
     // --------------------------------------------------
     // INITIAL STATE
     // --------------------------------------------------
 
-    // Navbar starts invisible.
-    if (navbar) {
-      gsap.set(navbar, {
-        opacity: 0,
-      });
-    }
-
-    // Video starts invisible.
-    gsap.set("#hero-video", {
-      opacity: 0,
-    });
-
-    // Content starts invisible.
-    gsap.set("#hero-details", {
-      opacity: 0,
-    });
-
-    // Names are ALWAYS visible.
-    gsap.set("#first-name", {
-      opacity: 1,
-      color: "black",
-    });
-
-    gsap.set(".lastname", {
-      opacity: 1,
-      color: "black",
-    });
-
-    // Initial frame.
+    if (navbar) gsap.set(navbar, { opacity: 0 });
+    gsap.set("#hero-video", { opacity: 0 });
+    gsap.set("#hero-details", { opacity: 0 });
+    gsap.set("#first-name", { opacity: 1, color: "black" });
+    gsap.set(".lastname", { opacity: 1, color: "black" });
     gsap.set("#video-frame", {
       backgroundColor: "white",
       clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
@@ -81,114 +103,37 @@ const Hero = () => {
 
     const intro = gsap.timeline({
       delay: 0.5,
-
       onComplete: () => {
         video.play().catch(() => { });
       },
     });
 
-    // --------------------------------------------------
-    // RANDALL
-    // --------------------------------------------------
-
     intro.fromTo(
       "#first-name",
-      {
-        x: firstX,
-        y: firstY,
-        color: "black",
-        opacity: 1,
-      },
-      {
-        x: 0,
-        y: 0,
-        color: "white",
-        opacity: 1,
-        duration: 2,
-        ease: "power2.inOut",
-        delay: 0.2
-      },
+      { x: firstX, y: firstY, color: "black", opacity: 1 },
+      { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
       0
     );
-
-    // --------------------------------------------------
-    // AQUIN
-    // --------------------------------------------------
 
     intro.fromTo(
       ".lastname",
-      {
-        y: -window.innerHeight / 2,
-        color: "black",
-        opacity: 1,
-      },
-      {
-        y: 0,
-        color: "white",
-        opacity: 1,
-        duration: 2,
-        ease: "power2.inOut",
-        delay: 0.2
-
-      },
+      { x: lastX, y: lastY, color: "black", opacity: 1 },
+      { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
       0
     );
 
-    // --------------------------------------------------
-    // VIDEO
-    // --------------------------------------------------
+    intro.to("#hero-video", { opacity: 1, duration: 1.8, ease: "power2.inOut" }, 0.6);
 
-    intro.to(
-      "#hero-video",
-      {
-        opacity: 1,
-        duration: 1.8,
-        ease: "power2.inOut",
-      },
-      0.6
-    );
-
-    // --------------------------------------------------
-    // NAVBAR
-    // --------------------------------------------------
-
-    // Navbar appears smoothly at the same time
-    // as the Home content.
     if (navbar) {
-      intro.to(
-        navbar,
-        {
-          opacity: 1,
-          duration: 1.5,
-          ease: "power2.inOut",
-        },
-        0.9
-      );
+      intro.to(navbar, { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
     }
 
-    // --------------------------------------------------
-    // HOME CONTENT
-    // --------------------------------------------------
-
-    intro.to(
-      "#hero-details",
-      {
-        opacity: 1,
-        duration: 1.5,
-        ease: "power2.inOut",
-      },
-      0.9
-    );
-
-    // --------------------------------------------------
-    // SCROLL ANIMATION
-    // --------------------------------------------------
+    intro.to("#hero-details", { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
 
     gsap.from("#video-frame", {
       clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
       borderRadius: "0% 0% 0% 0%",
       ease: "power1.inOut",
-
       scrollTrigger: {
         trigger: "#video-frame",
         start: "center center",
