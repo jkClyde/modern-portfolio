@@ -23,68 +23,7 @@ const Hero = () => {
     if (!video || !firstName || !lastName) return;
 
     // --------------------------------------------------
-    // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
-    // AS ONE COMBINED, CENTERED LINE
-    // --------------------------------------------------
-
-    const measureContainer = document.createElement("div");
-    measureContainer.style.position = "fixed";
-    measureContainer.style.top = "0";
-    measureContainer.style.left = "0";
-    measureContainer.style.visibility = "hidden";
-    measureContainer.style.whiteSpace = "nowrap";
-    measureContainer.style.display = "flex";
-    measureContainer.style.alignItems = "baseline";
-    measureContainer.style.gap = "40px"; // space between words, tune as needed
-
-    // Clone classes so font-size/weight match the real headings.
-    const firstClone = firstName.cloneNode(true);
-    const lastClone = lastName.cloneNode(true);
-
-    // Reset any absolute positioning inherited from the originals.
-    firstClone.style.position = "static";
-    lastClone.style.position = "static";
-    firstClone.style.opacity = "1";
-    lastClone.style.opacity = "1";
-
-    measureContainer.appendChild(firstClone);
-    measureContainer.appendChild(lastClone);
-    document.body.appendChild(measureContainer);
-
-    // Center this combined block on screen.
-    const combinedRect = measureContainer.getBoundingClientRect();
-    const combinedCenterX = window.innerWidth / 2;
-    const combinedCenterY = window.innerHeight / 2;
-    const combinedLeft = combinedCenterX - combinedRect.width / 2;
-    const combinedTop = combinedCenterY - combinedRect.height / 2;
-
-    const firstCloneRect = firstClone.getBoundingClientRect();
-    const lastCloneRect = lastClone.getBoundingClientRect();
-
-    // Where each word WOULD be, in the centered combined line.
-    const targetFirstLeft = combinedLeft + (firstCloneRect.left - combinedRect.left);
-    const targetFirstTop = combinedTop + (firstCloneRect.top - combinedRect.top);
-
-    const targetLastLeft = combinedLeft + (lastCloneRect.left - combinedRect.left);
-    const targetLastTop = combinedTop + (lastCloneRect.top - combinedRect.top);
-
-    document.body.removeChild(measureContainer);
-
-    // --------------------------------------------------
-    // NOW COMPARE TO EACH WORD'S ACTUAL NATURAL POSITION
-    // --------------------------------------------------
-
-    const firstRect = firstName.getBoundingClientRect();
-    const lastRect = lastName.getBoundingClientRect();
-
-    const firstX = targetFirstLeft - firstRect.left;
-    const firstY = targetFirstTop - firstRect.top;
-
-    const lastX = targetLastLeft - lastRect.left;
-    const lastY = targetLastTop - lastRect.top;
-
-    // --------------------------------------------------
-    // INITIAL STATE
+    // INITIAL STATE (shared by mobile + desktop)
     // --------------------------------------------------
 
     if (navbar) gsap.set(navbar, { opacity: 0 });
@@ -98,9 +37,7 @@ const Hero = () => {
       borderRadius: "0% 0% 40% 10%",
     });
 
-    // --------------------------------------------------
-    // INTRO TIMELINE
-    // --------------------------------------------------
+    const isMobile = window.innerWidth < 768;
 
     const intro = gsap.timeline({
       delay: 0.5,
@@ -109,19 +46,107 @@ const Hero = () => {
       },
     });
 
-    intro.fromTo(
-      "#first-name",
-      { x: firstX, y: firstY, color: "black", opacity: 1 },
-      { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
-      0
-    );
+    if (isMobile) {
+      // --------------------------------------------------
+      // MOBILE: skip the combined-centering math entirely.
+      // "RANDALL" + "AQUIN" don't fit on one measured line at
+      // mobile font sizes, which was pushing the elements off
+      // screen before the timeline even started. Just fade
+      // the names in from their natural (already-correct)
+      // position instead.
+      // --------------------------------------------------
 
-    intro.fromTo(
-      ".lastname",
-      { x: lastX, y: lastY, color: "black", opacity: 1 },
-      { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
-      0
-    );
+      gsap.set(["#first-name", ".lastname"], { x: 0, y: 0, opacity: 0, color: "white" });
+
+      intro.to(
+        "#first-name",
+        { opacity: 1, duration: 1.5, ease: "power2.inOut", delay: 0.2 },
+        0
+      );
+
+      intro.to(
+        ".lastname",
+        { opacity: 1, duration: 1.5, ease: "power2.inOut", delay: 0.2 },
+        0
+      );
+    } else {
+      // --------------------------------------------------
+      // DESKTOP: original combined-centering illusion, unchanged.
+      // --------------------------------------------------
+
+      // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
+      // AS ONE COMBINED, CENTERED LINE
+
+      const measureContainer = document.createElement("div");
+      measureContainer.style.position = "fixed";
+      measureContainer.style.top = "0";
+      measureContainer.style.left = "0";
+      measureContainer.style.visibility = "hidden";
+      measureContainer.style.whiteSpace = "nowrap";
+      measureContainer.style.display = "flex";
+      measureContainer.style.alignItems = "baseline";
+      measureContainer.style.gap = "20px"; // space between words, tune as needed
+
+      // Clone classes so font-size/weight match the real headings.
+      const firstClone = firstName.cloneNode(true);
+      const lastClone = lastName.cloneNode(true);
+
+      // Reset any absolute positioning inherited from the originals.
+      firstClone.style.position = "static";
+      lastClone.style.position = "static";
+      firstClone.style.opacity = "1";
+      lastClone.style.opacity = "1";
+
+      measureContainer.appendChild(firstClone);
+      measureContainer.appendChild(lastClone);
+      document.body.appendChild(measureContainer);
+
+      // Center this combined block on screen.
+      const combinedRect = measureContainer.getBoundingClientRect();
+      const combinedCenterX = window.innerWidth / 2;
+      const combinedCenterY = window.innerHeight / 2;
+      const combinedLeft = combinedCenterX - combinedRect.width / 2;
+      const combinedTop = combinedCenterY - combinedRect.height / 2;
+
+      const firstCloneRect = firstClone.getBoundingClientRect();
+      const lastCloneRect = lastClone.getBoundingClientRect();
+
+      // Where each word WOULD be, in the centered combined line.
+      const targetFirstLeft = combinedLeft + (firstCloneRect.left - combinedRect.left);
+      const targetFirstTop = combinedTop + (firstCloneRect.top - combinedRect.top);
+
+      const targetLastLeft = combinedLeft + (lastCloneRect.left - combinedRect.left);
+      const targetLastTop = combinedTop + (lastCloneRect.top - combinedRect.top);
+
+      document.body.removeChild(measureContainer);
+
+      // --------------------------------------------------
+      // NOW COMPARE TO EACH WORD'S ACTUAL NATURAL POSITION
+      // --------------------------------------------------
+
+      const firstRect = firstName.getBoundingClientRect();
+      const lastRect = lastName.getBoundingClientRect();
+
+      const firstX = targetFirstLeft - firstRect.left;
+      const firstY = targetFirstTop - firstRect.top;
+
+      const lastX = targetLastLeft - lastRect.left;
+      const lastY = targetLastTop - lastRect.top;
+
+      intro.fromTo(
+        "#first-name",
+        { x: firstX, y: firstY, color: "black", opacity: 1 },
+        { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
+        0
+      );
+
+      intro.fromTo(
+        ".lastname",
+        { x: lastX, y: lastY, color: "black", opacity: 1 },
+        { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
+        0
+      );
+    }
 
     intro.to("#hero-video", { opacity: 1, duration: 1.8, ease: "power2.inOut" }, 0.6);
 
