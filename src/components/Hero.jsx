@@ -22,8 +22,45 @@ const Hero = () => {
 
     if (!video || !firstName || !lastName) return;
 
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+
     // --------------------------------------------------
-    // INITIAL STATE (shared by mobile + desktop)
+    // MOBILE: skip the text-position animation and the
+    // opacity fades — just show everything in its final
+    // state and play the video. The video-frame clip-path
+    // scroll effect further below still runs on mobile.
+    // --------------------------------------------------
+    if (isMobile) {
+      if (navbar) gsap.set(navbar, { opacity: 1 });
+      gsap.set("#hero-video", { opacity: 1 });
+      gsap.set("#hero-details", { opacity: 1 });
+      gsap.set("#first-name", { opacity: 1, color: "white", x: 0, y: 0 });
+      gsap.set(".lastname", { opacity: 1, color: "white", x: 0, y: 0 });
+      gsap.set("#video-frame", {
+        backgroundColor: "white",
+        clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
+        borderRadius: "0% 0% 40% 10%",
+      });
+
+      video.play().catch(() => { });
+
+      gsap.from("#video-frame", {
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+        borderRadius: "0% 0% 0% 0%",
+        ease: "power1.inOut",
+        scrollTrigger: {
+          trigger: "#video-frame",
+          start: "center center",
+          end: "bottom center",
+          scrub: true,
+        },
+      });
+
+      return;
+    }
+
+    // --------------------------------------------------
+    // INITIAL STATE (desktop)
     // --------------------------------------------------
 
     if (navbar) gsap.set(navbar, { opacity: 0 });
