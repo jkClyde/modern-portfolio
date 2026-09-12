@@ -1,35 +1,10 @@
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/all";
-
 import AnimatedTitle from "./AnimatedTitle";
 import ZoomParallax from "./Zoom";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const About = () => {
-  useGSAP(() => {
-    const clipAnimation = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#clip",
-        start: "center center",
-        end: "+=800 center",
-        scrub: 0.5,
-        pin: true,
-        pinSpacing: true,
-      },
-    });
-
-    clipAnimation.to(".mask-clip-path", {
-      width: "100vw",
-      height: "100vh",
-      borderRadius: 0,
-    });
-  });
-
   return (
     <div id="about" className="min-h-screen w-screen mb-[-2px]">
-      <div className="relative mb-8 mt-36 flex flex-col items-center gap-5">
+      <div className="relative -mb-16 md:mb-8 mt-36 flex flex-col items-center gap-5 -0">
         <p className="font-general text-sm uppercase md:text-[10px]">
           Welcome to my Portfolio
         </p>
@@ -57,7 +32,7 @@ const About = () => {
           />
         </div>
       </div> */}
-      <ZoomParallax/>
+      <ZoomParallax />
     </div>
   );
 };
