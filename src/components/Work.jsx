@@ -60,7 +60,7 @@ const projects = [
 
     {
         client: "Project Management",
-        heading: "Project Management Saas",
+        heading: "PMS",
         description:
             "A project management SaaS platform designed to help teams organize projects, manage tasks, and track progress in one centralized workspace. Built with a modern responsive interface featuring role-based access, project and task management, and a structured workflow for keeping teams organized and productive.",
         tags: ["NextJS", "Firebase", "Tailwind", "ShadCN", "Prisma"],
