@@ -11,6 +11,7 @@ import { ScrollTrigger } from "gsap/all";
 import Lenis from "lenis";
 
 import { TiLocationArrow } from "react-icons/ti";
+import Button from "./Button";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,37 +25,49 @@ const isColor = (value) => value.startsWith("#");
 
 const projects = [
     {
-        client: "ProjectHub",
-        heading: "Full-stack project management, built to actually ship work.",
+        client: "Ayoha",
+        heading: "Ayoha Cafe",
         description:
-            "A Next.js 15 SaaS dashboard with Prisma and Supabase Auth underneath. Kanban boards with drag-and-drop task views, threaded comments per task, and every mutation running through Server Actions instead of a separate API layer.",
-        tags: ["Next.js 15", "Prisma", "Supabase", "NextAuth"],
+            "A modern landing page built with Next.js, Tailwind CSS, and GSAP, focused on creating an engaging and immersive browsing experience through smooth scroll interactions and dynamic animations. The page uses scroll-driven transitions, motion effects, and carefully timed visual elements to guide users through the content while maintaining a clean and responsive design.",
+        tags: ["Next.js", "Tailwind CSS", "GSAP"],
         color: "#4B3FD1",
         link: "#",
-        desktop: "https://picsum.photos/seed/projecthub-desktop/1280/800",
-        mobile: "https://picsum.photos/seed/projecthub-mobile/450/974",
+        desktop: "/img/works/ayoha-desktop.png",
+        mobile: "/img/works/ayoha-mobile.png",
+    },
+    {
+        client: "BDN Shop",
+        heading: "BDN Shop",
+        description:
+            "A modern e-commerce store built with Next.js and Tailwind CSS, using WooCommerce as a headless CMS for product and order management. The frontend delivers a responsive shopping experience with dynamic product browsing, cart functionality, and a streamlined checkout flow.",
+        tags: ["NextJS", "Tailwind CSS", "WooCommerce", "REST API"],
+        color: "#FF7A21",
+        link: "#",
+        desktop: "/img/works/bdn-desktop.png",
+        mobile: "/img/works/bdn-desktop.png",
     },
     {
         client: "CalaTrace",
-        heading: "Farm-to-shelf traceability for calamansi citrus.",
+        heading: "CalaTrace",
         description:
-            "React Native/Expo app on Supabase covering the full harvest-to-retail journey — role-aware forms for farmers, intermediaries, transporters, and retailers, QR-based batch tracking, and live IoT sensor monitoring via an ESP32 gateway network.",
-        tags: ["React Native", "Expo", "IoT", "Supabase"],
-        color: "#FF7A21",
-        link: "#",
-        desktop: "https://picsum.photos/seed/calatrace-desktop/1280/800",
-        mobile: "https://picsum.photos/seed/calatrace-mobile/450/974",
-    },
-    {
-        client: "Animation Addon",
-        heading: "Pro animation controls for Elementor, no code required.",
-        description:
-            "A WordPress plugin that brings GSAP's timeline and ScrollTrigger power into Elementor as plain widget settings — scroll-pinned sections, stagger presets, and scrub-based reveals page builders don't offer out of the box.",
-        tags: ["GSAP", "ScrollTrigger", "WordPress Plugin"],
+            "A mobile application for tracking produce batches throughout the supply chain, providing chain-of-custody tracking with real-time location mapping and IoT sensor monitoring. The app displays live temperature, humidity, and vibration readings to help monitor produce conditions from harvest to delivery.",
+        tags: ["React Native", "Supabase", "IoT"],
         color: "#E5342C",
         link: "#",
-        desktop: "https://picsum.photos/seed/animationaddon-desktop/1280/800",
-        mobile: "https://picsum.photos/seed/animationaddon-mobile/450/974",
+        desktop: "/img/works/calatrace-dashboard.png",
+        mobile: "/img/works/calatrace-mobile.png",
+    },
+
+    {
+        client: "Project Management",
+        heading: "Project Management Saas",
+        description:
+            "A project management SaaS platform designed to help teams organize projects, manage tasks, and track progress in one centralized workspace. Built with a modern responsive interface featuring role-based access, project and task management, and a structured workflow for keeping teams organized and productive.",
+        tags: ["NextJS", "Firebase", "Tailwind", "ShadCN", "Prisma"],
+        color: "#4F46E5",
+        link: "#",
+        desktop: "/img/works/pms-desktop.png",
+        mobile: "/img/works/pms-mobile.png",
     },
 ];
 
@@ -220,7 +233,7 @@ const Work = () => {
                                 {/* Left: details */}
                                 <div className="flex flex-col gap-3 md:flex-1 md:gap-6">
                                     <div className="flex items-start justify-between gap-6">
-                                        <h3 className="bento-title special-font max-w-xl text-3xl uppercase leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl">
+                                        <h3 className="bento-title !font-sans special-font max-w-xl text-3xl uppercase leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl">
                                             {project.heading}
                                         </h3>
                                         <span className="font-circular-web text-xl text-white/50 md:text-2xl">
@@ -240,6 +253,13 @@ const Work = () => {
                                             </div>
                                         ))}
                                     </div>
+
+                                    <Button
+
+                                        title="Download Resume"
+                                        leftIcon={<TiLocationArrow />}
+                                        containerClass="bg-white flex-center gap-1 text-[4B3FD1]"
+                                    />
                                 </div>
 
                                 {/* Right: device mockup */}
