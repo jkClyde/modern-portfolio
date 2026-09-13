@@ -1,49 +1,77 @@
-import AnimatedTitle from "./AnimatedTitle";
-import Button from "./Button";
+"use client";
 
-const ImageClipBox = ({ src, clipClass }) => (
-  <div className={clipClass}>
-    <img src={src} />
+import AnimatedTitle from "./AnimatedTitle";
+import { TiLocationArrow } from "react-icons/ti";
+
+// --------------------------------------------------
+// Swap these for real photos of your workspace/screens when you have
+// them — picsum.photos gives real (if random) stock-style images so the
+// layout reads correctly today.
+// --------------------------------------------------
+const images = {
+  codeOnScreen: "https://picsum.photos/seed/contact-code/500/650",
+  workspace: "https://picsum.photos/seed/contact-workspace/500/650",
+};
+
+const ImageCard = ({ src, alt, className = "" }) => (
+  <div
+    className={`overflow-hidden rounded-2xl border border-white/10 shadow-2xl ${className}`}
+  >
+    <img src={src} alt={alt} className="size-full object-cover" />
   </div>
 );
 
 const Contact = () => {
   return (
-    <div id="contact" className="my-20 min-h-96 w-screen  px-10">
-      <div className="relative rounded-lg bg-black py-24 text-blue-50 sm:overflow-hidden">
-        <div className="absolute -left-20 top-0 hidden h-full w-72 overflow-hidden sm:block lg:left-20 lg:w-96">
-          <ImageClipBox
-            src="/img/contact-1.webp"
-            clipClass="contact-clip-path-1"
+    <div id="contact" className="my-20 min-h-96 w-screen px-5 md:px-10">
+      <div className="relative overflow-hidden rounded-lg bg-black py-24 text-blue-50">
+        {/* Left: stacked image cards */}
+        <div className="absolute -left-16 top-10 hidden w-56 -rotate-3 sm:block lg:left-16 lg:w-72">
+          <ImageCard
+            src={images.codeOnScreen}
+            alt="Code editor on a laptop screen"
+            className="aspect-[3/4] translate-y-0"
           />
-          <ImageClipBox
-            src="/img/contact-2.webp"
-            clipClass="contact-clip-path-2 lg:translate-y-40 translate-y-60"
+        </div>
+        <div className="absolute -left-6 top-56 hidden w-44 rotate-6 sm:block lg:left-40 lg:top-72 lg:w-60">
+          <ImageCard
+            src={images.workspace}
+            alt="Developer workspace with multiple monitors"
+            className="aspect-[3/4]"
           />
         </div>
 
-        <div className="absolute -top-40 left-20 w-60 sm:top-1/2 md:left-auto md:right-10 lg:top-20 lg:w-80">
-          <ImageClipBox
-            src="/img/swordman-partial.webp"
-            clipClass="absolute md:scale-125"
-          />
-          <ImageClipBox
-            src="/img/swordman.webp"
-            clipClass="sword-man-clip-path md:scale-125"
+        {/* Right: mirrored image cards for balance on larger screens */}
+        <div className="absolute -right-16 top-10 hidden w-56 rotate-3 md:right-10 lg:block lg:w-72">
+          <ImageCard
+            src={images.workspace}
+            alt="Developer workspace with multiple monitors"
+            className="aspect-[3/4]"
           />
         </div>
 
-        <div className="flex flex-col items-center text-center">
-          <p className="mb-10 font-general text-[10px] uppercase">
+        <div className="relative flex flex-col items-center px-6 text-center">
+          <p className="mb-6 font-circular-web text-xs uppercase tracking-wide text-blue-50/60">
             Let's Connect
           </p>
 
           <AnimatedTitle
             title="let&#39;s build <br /> your next <br /> project together."
-            className="special-font !md:text-[6.2rem] w-full font-zentry !text-5xl !font-black !leading-[.9]"
+            className="bento-title special-font w-full !text-4xl !font-black uppercase !leading-[0.95] sm:!text-5xl md:!text-6xl"
           />
 
-          <Button title="get in touch" containerClass="mt-10 cursor-pointer" />
+          <p className="mt-6 max-w-md font-circular-web text-sm text-blue-50/70 md:text-base">
+            Have an idea, a role, or a problem worth solving? I'm always open
+            to hearing about new projects and opportunities.
+          </p>
+
+          <a
+            href="mailto:hello@example.com"
+            className="border-hsla group relative mt-10 flex w-fit cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-[#4B3FD1] px-7 py-3.5 text-sm uppercase text-white transition-colors duration-300 hover:bg-[#5B4FE0]"
+          >
+            <span className="font-circular-web">Get in touch</span>
+            <TiLocationArrow className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+          </a>
         </div>
       </div>
     </div>

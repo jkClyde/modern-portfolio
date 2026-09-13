@@ -65,7 +65,7 @@ const projects = [
 // straight up and tilts back on exit as the next one takes over.
 // --------------------------------------------------
 
-const CARD_Y_OFFSET = 5;        // % vertical offset per waiting layer
+const CARD_Y_OFFSET = 8;        // % vertical offset per waiting layer
 const CARD_SCALE_STEP = 0.075;  // scale reduction per waiting layer
 const EXIT_Y_PERCENT = -200;    // where the active card ends up on exit
 const EXIT_ROTATION_X = 35;     // degrees it tilts back on exit

@@ -43,6 +43,37 @@ const ZoomParallax = () => {
                 0
             );
         });
+
+        // --- Modern scroll indicator animation ---
+        // Falling dot inside the "mouse" shape
+        gsap.timeline({ repeat: -1 })
+            .to(".scroll-wheel-dot", {
+                y: 10,
+                opacity: 0,
+                duration: 1,
+                ease: "power1.in",
+            })
+            .set(".scroll-wheel-dot", { y: 0, opacity: 1 });
+
+        // Staggered bouncing chevrons
+        gsap.to(".scroll-chevron", {
+            y: 6,
+            opacity: 0.15,
+            duration: 0.8,
+            repeat: -1,
+            yoyo: true,
+            stagger: 0.15,
+            ease: "power1.inOut",
+        });
+
+        // Gentle label pulse
+        gsap.to(".scroll-label", {
+            opacity: 0.4,
+            duration: 1.4,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+        });
     }, { scope: container });
 
     return (
@@ -68,19 +99,39 @@ const ZoomParallax = () => {
                     <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-background to-transparent w-full pointer-events-none z-10"></div>
 
                     <div className="p-4 bg-black bg-opacity-70 h-full w-full flex justify-center items-center flex-col">
+                        {/* MODERN SCROLL INDICATOR */}
                         <div className="flex flex-col items-center mt-6 mb-8">
-                            <p className="text-white text-[12px] sm:text-sm mb-2 opacity-80">
-                                Scroll Down
+                            <p className="scroll-label text-white text-[10px] sm:text-xs tracking-[0.3em] uppercase mb-3 opacity-80 font-light">
+                                Scroll
                             </p>
 
-                            <div className="relative w-3 sm:w-5 h-6 sm:h-8 rounded-full flex items-center justify-center">
-                                <div className="scroll-dot w-1 h-1 bg-white rounded-full" />
+                            {/* Mouse-shaped indicator */}
+                            <div className="relative w-[20px] sm:w-[24px] h-[34px] sm:h-[38px] rounded-full border border-white/50 flex justify-center pt-1.5 sm:pt-2">
+                                <div className="scroll-wheel-dot w-[3px] h-[6px] rounded-full bg-white" />
                             </div>
 
-                            <div className="scroll-arrow mt-2">
+                            {/* Chevrons */}
+                            <div className="flex flex-col items-center -space-y-1.5 mt-3">
                                 <svg
-                                    width="16"
-                                    height="8"
+                                    className="scroll-chevron"
+                                    width="14"
+                                    height="7"
+                                    viewBox="0 0 16 8"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M1 1L8 7L15 1"
+                                        stroke="white"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                <svg
+                                    className="scroll-chevron"
+                                    width="14"
+                                    height="7"
                                     viewBox="0 0 16 8"
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg"
