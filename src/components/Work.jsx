@@ -31,8 +31,8 @@ const projects = [
         tags: ["Next.js 15", "Prisma", "Supabase", "NextAuth"],
         color: "#4B3FD1",
         link: "#",
-        desktop: "https://placehold.co/1280x800/3A2FB8/ffffff?text=ProjectHub+%E2%80%94+Desktop",
-        mobile: "https://placehold.co/450x974/6E63EA/ffffff?text=ProjectHub+%E2%80%94+Mobile",
+        desktop: "https://picsum.photos/seed/projecthub-desktop/1280/800",
+        mobile: "https://picsum.photos/seed/projecthub-mobile/450/974",
     },
     {
         client: "CalaTrace",
@@ -42,8 +42,8 @@ const projects = [
         tags: ["React Native", "Expo", "IoT", "Supabase"],
         color: "#FF7A21",
         link: "#",
-        desktop: "https://placehold.co/1280x800/E5670F/ffffff?text=CalaTrace+%E2%80%94+Desktop",
-        mobile: "https://placehold.co/450x974/FF9750/ffffff?text=CalaTrace+%E2%80%94+Mobile",
+        desktop: "https://picsum.photos/seed/calatrace-desktop/1280/800",
+        mobile: "https://picsum.photos/seed/calatrace-mobile/450/974",
     },
     {
         client: "Animation Addon",
@@ -53,8 +53,8 @@ const projects = [
         tags: ["GSAP", "ScrollTrigger", "WordPress Plugin"],
         color: "#E5342C",
         link: "#",
-        desktop: "https://placehold.co/1280x800/C22921/ffffff?text=Animation+Addon+%E2%80%94+Desktop",
-        mobile: "https://placehold.co/450x974/F0564E/ffffff?text=Animation+Addon+%E2%80%94+Mobile",
+        desktop: "https://picsum.photos/seed/animationaddon-desktop/1280/800",
+        mobile: "https://picsum.photos/seed/animationaddon-mobile/450/974",
     },
 ];
 
@@ -69,6 +69,9 @@ const CARD_Y_OFFSET = 5;        // % vertical offset per waiting layer
 const CARD_SCALE_STEP = 0.075;  // scale reduction per waiting layer
 const EXIT_Y_PERCENT = -200;    // where the active card ends up on exit
 const EXIT_ROTATION_X = 35;     // degrees it tilts back on exit
+const PIN_TOP_OFFSET_MOBILE = 40;  // px gap on small screens
+const PIN_TOP_OFFSET_DESKTOP = 80; // px gap on md+ screens
+const MOBILE_BREAKPOINT = 768;     // matches Tailwind's `md` breakpoint
 const SCROLL_LENGTH_MULTIPLIER = 0.5; // viewport-heights of scroll per card — this directly sets the size of the reserved pin-spacer gap before the next section
 
 const Work = () => {
@@ -117,24 +120,10 @@ const Work = () => {
             });
         });
 
-        // The cards are position:absolute so the container's height doesn't
-        // auto-size to them — it was previously a fixed h-[85vh] guess,
-        // taller than the actual content, leaving dead space below the
-        // card. Measure the real rendered height instead and size the
-        // container to match, recalculating on resize since content wraps
-        // differently across breakpoints.
-        const syncStackHeight = () => {
-            if (!stackRef.current || cards.length === 0) return;
-            const maxCardHeight = Math.max(...cards.map((c) => c.offsetHeight));
-            stackRef.current.style.height = `${maxCardHeight}px`;
-        };
-
-        syncStackHeight();
-        window.addEventListener("resize", syncStackHeight);
-
         const st = ScrollTrigger.create({
             trigger: stackRef.current,
-            start: "top top",
+            start: () =>
+                `top ${window.innerWidth < MOBILE_BREAKPOINT ? PIN_TOP_OFFSET_MOBILE : PIN_TOP_OFFSET_DESKTOP}px`,
             end: () => `+=${window.innerHeight * totalCards * SCROLL_LENGTH_MULTIPLIER}`,
             pin: true,
             pinSpacing: true,
@@ -165,11 +154,26 @@ const Work = () => {
                     } else {
                         // Still waiting, stacked behind.
                         const distanceFromActive = i - activeIndex;
-                        gsap.set(card, {
-                            yPercent: -50 + distanceFromActive * CARD_Y_OFFSET,
-                            rotationX: 0,
-                            scale: 1 - distanceFromActive * CARD_SCALE_STEP,
-                        });
+
+                        if (distanceFromActive === 1) {
+                            // The next card in line: grow/rise into place
+                            // continuously as the active card exits, driven
+                            // by the same segProgress, instead of jumping
+                            // straight to its new size once it becomes active.
+                            const fromScale = 1 - distanceFromActive * CARD_SCALE_STEP;
+                            const fromYPercent = -50 + distanceFromActive * CARD_Y_OFFSET;
+                            gsap.set(card, {
+                                yPercent: gsap.utils.interpolate(fromYPercent, -50, segProgress),
+                                scale: gsap.utils.interpolate(fromScale, 1, segProgress),
+                                rotationX: 0,
+                            });
+                        } else {
+                            gsap.set(card, {
+                                yPercent: -50 + distanceFromActive * CARD_Y_OFFSET,
+                                rotationX: 0,
+                                scale: 1 - distanceFromActive * CARD_SCALE_STEP,
+                            });
+                        }
                     }
                 });
             },
@@ -180,10 +184,7 @@ const Work = () => {
         // created, the cached start/end positions go stale and the pinned
         // stack can appear to overlap the section above. Refresh once
         // everything has loaded to resync positions with the real layout.
-        const handleLoad = () => {
-            syncStackHeight();
-            ScrollTrigger.refresh();
-        };
+        const handleLoad = () => ScrollTrigger.refresh();
         window.addEventListener("load", handleLoad);
 
         return () => {
@@ -191,7 +192,6 @@ const Work = () => {
             gsap.ticker.remove(raf);
             lenis.destroy();
             window.removeEventListener("load", handleLoad);
-            window.removeEventListener("resize", syncStackHeight);
         };
     }, { scope: sectionRef, dependencies: [] });
 
@@ -207,29 +207,30 @@ const Work = () => {
                 </div>
                 <div
                     ref={stackRef}
-                    className="relative mx-auto min-h-[400px] w-full max-w-[1400px] [perspective:1600px]"
+                    className="relative mx-auto mt-16 h-[80vh] min-h-[600px] max-h-[900px] w-full max-w-[1400px] [perspective:1600px] md:mt-24 md:h-[70vh] md:min-h-[520px] md:max-h-[820px]"
                 >
                     {projects.map((project, i) => (
                         <div
                             key={project.client}
                             ref={(el) => (cardRefs.current[i] = el)}
                             style={{ zIndex: total - i, backgroundColor: project.color }}
-                            className="absolute left-1/2 top-1/2 flex w-full flex-col overflow-hidden rounded-2xl p-8 will-change-transform sm:p-10 md:p-14"
+                            className="absolute left-1/2 top-1/2 flex size-full flex-col justify-center overflow-hidden rounded-2xl p-6 will-change-transform sm:p-10 md:p-14"
                         >
-                            <div className="flex items-start justify-between gap-6">
-                                <h3 className="bento-title special-font max-w-xl text-3xl uppercase leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl">
-                                    {project.heading}
-                                </h3>
-                                <span className="font-circular-web text-xl text-white/50 md:text-2xl">
-                                    ({String(i + 1).padStart(2, "0")})
-                                </span>
-                            </div>
-                            <p className="mt-6 max-w-lg font-circular-web text-sm text-white/70 md:text-base">
-                                {project.description}
-                            </p>
-                            <div className="mt-auto flex flex-col gap-8 pt-10 md:flex-row md:items-end md:justify-between">
-                                <div className="flex flex-col gap-5">
-                                    <div className="flex flex-wrap gap-x-6 gap-y-3">
+                            <div className="flex h-full flex-col gap-4 md:flex-row md:items-center md:gap-14">
+                                {/* Left: details */}
+                                <div className="flex flex-1 flex-col gap-3 md:gap-6">
+                                    <div className="flex items-start justify-between gap-6">
+                                        <h3 className="bento-title special-font max-w-xl text-3xl uppercase leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl">
+                                            {project.heading}
+                                        </h3>
+                                        <span className="font-circular-web text-xl text-white/50 md:text-2xl">
+                                            ({String(i + 1).padStart(2, "0")})
+                                        </span>
+                                    </div>
+                                    <p className="max-w-lg font-circular-web text-sm text-white/70 md:text-base">
+                                        {project.description}
+                                    </p>
+                                    <div className="mt-auto flex flex-wrap gap-x-6 gap-y-3 pt-4 md:pt-0">
                                         {project.tags.map((tag) => (
                                             <div key={tag} className="flex flex-col items-start gap-1.5">
                                                 <span className="h-0 w-0 border-x-4 border-x-transparent border-t-[6px] border-t-white/40" />
@@ -240,7 +241,9 @@ const Work = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="relative mx-auto w-full max-w-[460px] pb-12 sm:pb-14 md:mx-0 md:w-[660px]">
+
+                                {/* Right: device mockup */}
+                                <div className="relative mx-auto w-full max-w-[260px] shrink-0 pb-8 sm:max-w-[380px] sm:pb-10 md:mx-0 md:w-[560px] md:max-w-none md:pb-14">
                                     {/* Laptop */}
                                     <div className="relative">
                                         <div className="overflow-hidden rounded-t-xl border-[8px] border-b-0 border-white/15 bg-black shadow-2xl">

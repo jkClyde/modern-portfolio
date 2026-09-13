@@ -1,7 +1,5 @@
 import clsx from "clsx";
-import gsap from "gsap";
-import { useWindowScroll } from "react-use";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { TiLocationArrow } from "react-icons/ti";
 
 import Button from "./Button";
@@ -13,13 +11,8 @@ const NavBar = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isIndicatorActive, setIsIndicatorActive] = useState(false);
 
-  // Refs for audio and navigation container
+  // Refs for audio
   const audioElementRef = useRef(null);
-  const navContainerRef = useRef(null);
-
-  const { y: currentScrollY } = useWindowScroll();
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
 
   // Toggle audio and visual indicator
   const toggleAudioIndicator = () => {
@@ -28,45 +21,17 @@ const NavBar = () => {
   };
 
   // Manage audio playback
-  useEffect(() => {
-    if (isAudioPlaying) {
+  const handleAudioToggle = () => {
+    toggleAudioIndicator();
+    if (!isAudioPlaying) {
       audioElementRef.current.play();
     } else {
       audioElementRef.current.pause();
     }
-  }, [isAudioPlaying]);
-
-  useEffect(() => {
-    if (currentScrollY === 0) {
-      // Topmost position: show navbar without floating-nav
-      setIsNavVisible(true);
-      navContainerRef.current.classList.remove("floating-nav");
-    } else if (currentScrollY > lastScrollY) {
-      // Scrolling down: hide navbar and apply floating-nav
-      setIsNavVisible(false);
-      navContainerRef.current.classList.add("floating-nav");
-    } else if (currentScrollY < lastScrollY) {
-      // Scrolling up: show navbar with floating-nav
-      setIsNavVisible(true);
-      navContainerRef.current.classList.add("floating-nav");
-    }
-
-    setLastScrollY(currentScrollY);
-  }, [currentScrollY, lastScrollY]);
-
-  useEffect(() => {
-    gsap.to(navContainerRef.current, {
-      y: isNavVisible ? 0 : -100,
-      opacity: isNavVisible ? 1 : 0,
-      duration: 0.2,
-    });
-  }, [isNavVisible]);
+  };
 
   return (
-    <div
-      ref={navContainerRef}
-      className="fixed inset-x-0 top-4 z-50 h-16 border-none transition-all duration-700 sm:inset-x-6"
-    >
+    <div className="absolute inset-x-0 top-4 z-50 h-16 border-none sm:inset-x-6">
       <header className="absolute top-1/2 w-full -translate-y-1/2">
         <nav className="flex size-full items-center justify-between p-4">
           {/* Logo and Product button */}
@@ -96,7 +61,7 @@ const NavBar = () => {
             </div>
 
             <button
-              onClick={toggleAudioIndicator}
+              onClick={handleAudioToggle}
               className="ml-10 flex items-center space-x-0.5"
             >
               <audio
@@ -120,7 +85,7 @@ const NavBar = () => {
           </div>
         </nav>
       </header>
-    </div>
+    </div >
   );
 };
 
