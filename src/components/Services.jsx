@@ -8,8 +8,6 @@ import { useGSAP } from "@gsap/react";
 
 import { ScrollTrigger } from "gsap/all";
 
-import Lenis from "lenis";
-
 gsap.registerPlugin(ScrollTrigger);
 
 // --------------------------------------------------
@@ -95,17 +93,11 @@ const Services = () => {
 
     useGSAP(
         () => {
-            // NOTE: if Lenis is already initialized elsewhere in your app
-            // (e.g. a root layout provider), remove this block and rely on
-            // that instance instead — two Lenis instances fight each other.
-            const lenis = new Lenis();
-
-            lenis.on("scroll", ScrollTrigger.update);
-
-            const raf = (time) => lenis.raf(time * 1000);
-
-            gsap.ticker.add(raf);
-            gsap.ticker.lagSmoothing(0);
+            // Smooth scroll (Lenis) is owned once, page-wide, in Home.jsx —
+            // this section only creates its own ScrollTrigger and reacts to
+            // whatever scroll position Lenis/ScrollTrigger reports. Do not
+            // create another Lenis instance here: two instances fight over
+            // scroll position and that's what was causing the sudden jump.
 
             // Pin + drive the track on every breakpoint, mobile included —
             // vertical touch scroll gets converted into horizontal motion
@@ -140,8 +132,6 @@ const Services = () => {
 
             return () => {
                 st.kill();
-                gsap.ticker.remove(raf);
-                lenis.destroy();
                 window.removeEventListener("load", handleLoad);
             };
         },
@@ -265,4 +255,4 @@ const Services = () => {
     );
 };
 
-export default Services;
+export default Services;    

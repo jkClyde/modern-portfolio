@@ -8,12 +8,18 @@ import { useGSAP } from "@gsap/react";
 
 import { ScrollTrigger } from "gsap/all";
 
-import Lenis from "lenis";
-
 import { TiLocationArrow } from "react-icons/ti";
 import Button from "./Button";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Mobile browsers fire a resize event when the address bar collapses/expands
+// on scroll, which changes window.innerHeight. Since our pin `end` is based
+// on innerHeight, an auto-refresh at that moment recalculates a shorter end,
+// landing behind the current scroll position — the pin unlocks instantly and
+// it looks like the section "jumps" straight to whatever comes after it.
+// This tells ScrollTrigger to ignore that specific class of resize.
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 // --------------------------------------------------
 // Swap `desktop`/`mobile` for real screenshots when you have them —
@@ -22,6 +28,20 @@ gsap.registerPlugin(ScrollTrigger);
 // --------------------------------------------------
 
 const isColor = (value) => value.startsWith("#");
+
+// Darken/lighten a hex color by a percentage (-100 to 100).
+const shade = (hex, percent) => {
+    const num = parseInt(hex.replace("#", ""), 16);
+    const amt = Math.round(2.55 * percent);
+    const r = Math.max(0, Math.min(255, (num >> 16) + amt));
+    const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00ff) + amt));
+    const b = Math.max(0, Math.min(255, (num & 0x0000ff) + amt));
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+};
+
+// Build a diagonal gradient (light -> dark) from a project's base color.
+const cardGradient = (hex) =>
+    `linear-gradient(135deg, ${shade(hex, 15)}, ${shade(hex, -20)})`;
 
 const projects = [
     {
@@ -86,6 +106,8 @@ const PIN_TOP_OFFSET_MOBILE = 40;  // px gap on small screens
 const PIN_TOP_OFFSET_DESKTOP = 80; // px gap on md+ screens
 const MOBILE_BREAKPOINT = 768;     // matches Tailwind's `md` breakpoint
 const SCROLL_LENGTH_MULTIPLIER = 0.5; // viewport-heights of scroll per card — this directly sets the size of the reserved pin-spacer gap before the next section
+const MOBILE_SCRUB = 1.4;  // slightly heavier smoothing so the card eases rather than jumps
+const DESKTOP_SCRUB = 1;
 
 const Work = () => {
     const total = projects.length;
@@ -108,19 +130,13 @@ const Work = () => {
     }, { scope: headingRef });
 
     useGSAP(() => {
-        // NOTE: if Lenis is already initialized elsewhere in your app (e.g.
-        // a root layout provider), remove this block and just rely on that
-        // instance — running two Lenis instances at once will fight each
-        // other over scroll position.
-        const lenis = new Lenis();
+        const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
 
-        lenis.on("scroll", ScrollTrigger.update);
-
-        const raf = (time) => lenis.raf(time * 1000);
-
-        gsap.ticker.add(raf);
-        gsap.ticker.lagSmoothing(0);
-
+        // Smooth scroll (Lenis) is owned once, page-wide, in Home.jsx — this
+        // section only creates its own ScrollTrigger and reacts to whatever
+        // scroll position Lenis/ScrollTrigger reports. Do not create another
+        // Lenis instance here: two instances fight over scroll position and
+        // that's what was causing the sudden jump.
         const cards = projects.map((_, i) => cardRefs.current[i]).filter(Boolean);
         const totalCards = cards.length;
         const segmentSize = 1 / totalCards;
@@ -140,7 +156,7 @@ const Work = () => {
             end: () => `+=${window.innerHeight * totalCards * SCROLL_LENGTH_MULTIPLIER}`,
             pin: true,
             pinSpacing: true,
-            scrub: 1,
+            scrub: isMobile ? MOBILE_SCRUB : DESKTOP_SCRUB,
             onUpdate: (self) => {
                 const progress = self.progress;
                 const activeIndex = Math.min(
@@ -202,8 +218,6 @@ const Work = () => {
 
         return () => {
             st.kill();
-            gsap.ticker.remove(raf);
-            lenis.destroy();
             window.removeEventListener("load", handleLoad);
         };
     }, { scope: sectionRef, dependencies: [] });
@@ -226,7 +240,10 @@ const Work = () => {
                         <div
                             key={project.client}
                             ref={(el) => (cardRefs.current[i] = el)}
-                            style={{ zIndex: total - i, backgroundColor: project.color }}
+                            style={{
+                                zIndex: total - i,
+                                backgroundImage: cardGradient(project.color),
+                            }}
                             className="absolute left-1/2 top-1/2 flex size-full flex-col justify-center overflow-hidden rounded-2xl p-6 will-change-transform sm:p-10 md:p-14"
                         >
                             <div className="flex flex-col  gap-[4rem] md:h-full md:flex-row md:items-center md:gap-14">
@@ -266,7 +283,7 @@ const Work = () => {
                                 <div className="relative mx-auto w-full max-w-[260px] shrink-0 pb-8 sm:max-w-[380px] sm:pb-10 md:mx-0 md:w-[560px] md:max-w-none md:pb-14">
                                     {/* Laptop */}
                                     <div className="relative">
-                                        <div className="overflow-hidden rounded-t-xl border-[8px] border-b-0 border-white/15 bg-black shadow-2xl">
+                                        <div className="overflow-hidden rounded-t-[15px] border-2 border-b-0 border-white/15 bg-black shadow-2xl md:rounded-t-xl md:border-[8px]">
                                             <div className="aspect-video w-full">
                                                 {isColor(project.desktop) ? (
                                                     <div
@@ -277,7 +294,7 @@ const Work = () => {
                                                     <img
                                                         src={project.desktop}
                                                         alt={`${project.client} desktop view`}
-                                                        className="size-full object-cover"
+                                                        className="size-full object-contain object-top md:object-cover"
                                                     />
                                                 )}
                                             </div>
@@ -289,7 +306,7 @@ const Work = () => {
                                     </div>
 
                                     {/* Phone, overlapping the laptop's bottom-right corner */}
-                                    <div className="absolute -bottom-3 right-1 w-[30%] overflow-hidden rounded-[1.6rem] border-[6px] border-white/15 bg-black shadow-2xl sm:right-4">
+                                    <div className="absolute -bottom-3 right-1 w-[30%] overflow-hidden rounded-[15px] border-2 border-white/15 bg-black shadow-2xl sm:right-4 md:rounded-[1.6rem] md:border-[6px]">
                                         <div className="relative aspect-[9/19]">
                                             {isColor(project.mobile) ? (
                                                 <div
@@ -300,7 +317,7 @@ const Work = () => {
                                                 <img
                                                     src={project.mobile}
                                                     alt={`${project.client} mobile view`}
-                                                    className="size-full object-cover"
+                                                    className="size-full object-contain object-top md:object-cover"
                                                 />
                                             )}
                                             <div className="absolute left-1/2 top-2 h-1.5 w-1/3 -translate-x-1/2 rounded-full bg-black/60" />
