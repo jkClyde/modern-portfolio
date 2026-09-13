@@ -250,7 +250,7 @@ const Work = () => {
                                 {/* Left: details */}
                                 <div className="flex flex-col gap-3 md:flex-1 md:gap-6">
                                     <div className="flex items-start justify-between gap-6">
-                                        <h3 className="bento-title !font-sans special-font max-w-xl text-3xl uppercase leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl">
+                                        <h3 className="bento-title  special-font max-w-xl text-3xl uppercase leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl">
                                             {project.heading}
                                         </h3>
                                         <span className="font-circular-web text-xl text-white/50 md:text-2xl">
