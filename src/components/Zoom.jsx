@@ -1,5 +1,8 @@
-import { useEffect, useRef } from "react";
+"use client";
+
+import { useRef } from "react";
 import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,35 +19,31 @@ const ZoomParallax = () => {
     const container = useRef(null);
     const imageRefs = useRef([]);
 
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            const scaleTargets = [4, 5, 6, 5, 6, 8, 9];
+    useGSAP(() => {
+        const scaleTargets = [4, 5, 6, 5, 6, 8, 9];
 
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: container.current,
-                    start: "top top",
-                    end: "+=1200",
-                    scrub: true,
-                    pin: true,
-                    anticipatePin: 1,
-                },
-            });
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: container.current,
+                start: "top top",
+                end: "+=1200",
+                scrub: true,
+                pin: true,
+                anticipatePin: 1,
+            },
+        });
 
-            imageRefs.current.forEach((el, index) => {
-                if (!el) return;
+        imageRefs.current.forEach((el, index) => {
+            if (!el) return;
 
-                tl.fromTo(
-                    el,
-                    { scale: 1 },
-                    { scale: scaleTargets[index], ease: "none" },
-                    0
-                );
-            });
-        }, container);
-
-        return () => ctx.revert();
-    }, []);
+            tl.fromTo(
+                el,
+                { scale: 1 },
+                { scale: scaleTargets[index], ease: "none" },
+                0
+            );
+        });
+    }, { scope: container });
 
     return (
         <div

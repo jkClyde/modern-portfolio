@@ -98,26 +98,8 @@ export const BentoCard = ({ src, title, description, isComingSoon }) => {
 };
 
 const Features = () => (
-  <section className="bg-black pb-52">
+  <section className="bg-black pb-52 pt-24">
     <div className="container mx-auto px-3 md:px-10">
-      <div className="px-5 py-32">
-        <p className="font-circular-web text-lg text-blue-50">
-          Selected Work
-        </p>
-        <p className="max-w-md font-circular-web text-lg text-blue-50 opacity-50">
-          A look at the projects I've built, from full-stack SaaS apps to
-          client sites and custom WordPress tooling.
-        </p>
-      </div>
-
-      <BentoTilt className="border-hsla relative mb-7 h-96 w-full overflow-hidden rounded-md md:h-[65vh]">
-        <BentoCard
-          src="videos/feature-1.mp4"
-          title={<>ProjectHub</>}
-          description="A full-stack SaaS project management app built with Next.js 15, Prisma, Supabase, and NextAuth — covering auth, Kanban boards, notifications, invite flows, and theming."
-        />
-      </BentoTilt>
-
       <div className="grid h-[135vh] w-full grid-cols-2 grid-rows-3 gap-7">
         <BentoTilt className="bento-tilt_1 row-span-1 md:col-span-1 md:row-span-2">
           <BentoCard
@@ -167,4 +149,4 @@ const Features = () => (
   </section>
 );
 
-export default Features;
+export default Features;  
