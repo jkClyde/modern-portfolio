@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
+import { ReactLenis, useLenis } from "lenis/react";
 
 import Hero from "../components/Hero";
 import About from "../components/About";
@@ -16,19 +16,16 @@ const MOBILE_BREAKPOINT = 768;
 const MOBILE_TOUCH_MULTIPLIER = 0.6;
 const DESKTOP_TOUCH_MULTIPLIER = 1;
 
-function Home() {
+// Drives Lenis off gsap.ticker (instead of ReactLenis's default
+// internal RAF loop) and keeps ScrollTrigger in sync with Lenis's
+// scroll position. Mirrors the previous manual useEffect exactly.
+function LenisGsapSync() {
+    const lenis = useLenis(() => {
+        ScrollTrigger.update();
+    });
+
     useEffect(() => {
-        const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
-        const lenis = new Lenis({
-            touchMultiplier: isMobile ? MOBILE_TOUCH_MULTIPLIER : DESKTOP_TOUCH_MULTIPLIER,
-        });
-
-        // Expose the instance so other components (e.g. Hero) can
-        // call lenis.stop() / lenis.start() to lock scroll during
-        // in-page animations.
-        window.lenis = lenis;
-
-        lenis.on("scroll", ScrollTrigger.update);
+        if (!lenis) return;
 
         const raf = (time) => lenis.raf(time * 1000);
         gsap.ticker.add(raf);
@@ -45,13 +42,25 @@ function Home() {
             cancelAnimationFrame(raf1);
             if (raf2) cancelAnimationFrame(raf2);
             gsap.ticker.remove(raf);
-            lenis.destroy();
-            window.lenis = null;
         };
-    }, []);
+    }, [lenis]);
+
+    return null;
+}
+
+function Home() {
+    // Computed once on mount, same as the previous implementation.
+    const [lenisOptions] = useState(() => ({
+        touchMultiplier:
+            window.innerWidth < MOBILE_BREAKPOINT
+                ? MOBILE_TOUCH_MULTIPLIER
+                : DESKTOP_TOUCH_MULTIPLIER,
+    }));
 
     return (
-        <>
+        <ReactLenis root options={{ ...lenisOptions, autoRaf: false }}>
+            <LenisGsapSync />
+
             <Hero />
             <About />
             <Work />
@@ -60,7 +69,7 @@ function Home() {
             </div>
             <Contact />
             <Footer />
-        </>
+        </ReactLenis>
     );
 }
 

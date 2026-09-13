@@ -1,6 +1,7 @@
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
+import { useLenis } from "lenis/react";
 import { TiLocationArrow } from "react-icons/ti";
 import { useState } from "react";
 import Button from "./Button";
@@ -9,63 +10,187 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
   const [loading, setLoading] = useState(true);
+  const lenis = useLenis();
 
   const handleVideoLoad = () => {
     setLoading(false);
   };
 
-  useGSAP(() => {
-    const video = document.querySelector("#hero-video");
-    const firstName = document.querySelector("#first-name");
-    const lastName = document.querySelector(".lastname");
-    const navbar = document.querySelector("#main-navbar");
+  useGSAP(
+    () => {
+      const video = document.querySelector("#hero-video");
+      const firstName = document.querySelector("#first-name");
+      const lastName = document.querySelector(".lastname");
+      const navbar = document.querySelector("#main-navbar");
 
-    if (!video || !firstName || !lastName) return;
+      if (!video || !firstName || !lastName) return;
 
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
-    // --------------------------------------------------
-    // SCROLL LOCK HELPERS
-    // Lenis re-implements scrolling itself (transform-based,
-    // driven by its own RAF loop), so native overflow:hidden /
-    // preventDefault() on wheel/touch does nothing against it.
-    // We have to stop Lenis directly via the instance exposed
-    // on window.lenis (see Home.jsx).
-    // --------------------------------------------------
-    let scrollLocked = false;
+      // --------------------------------------------------
+      // MOBILE: skip the text-position animation and the
+      // opacity fades — just show everything in its final
+      // state and play the video. The video-frame clip-path
+      // scroll effect further below still runs on mobile.
+      // No scroll lock needed here since there's nothing to wait for.
+      // --------------------------------------------------
+      if (isMobile) {
+        if (navbar) gsap.set(navbar, { opacity: 1 });
+        gsap.set("#hero-video", { opacity: 1 });
+        gsap.set("#hero-details", { opacity: 1 });
+        gsap.set("#first-name", { opacity: 1, color: "white", x: 0, y: 0 });
+        gsap.set(".lastname", { opacity: 1, color: "white", x: 0, y: 0 });
+        gsap.set("#video-frame", {
+          backgroundColor: "white",
+          clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
+          borderRadius: "0% 0% 40% 10%",
+        });
 
-    const lockScroll = () => {
-      if (scrollLocked) return;
-      scrollLocked = true;
-      window.lenis?.stop();
-    };
+        video.play().catch(() => { });
 
-    const unlockScroll = () => {
-      if (!scrollLocked) return;
-      scrollLocked = false;
-      window.lenis?.start();
-    };
+        gsap.from("#video-frame", {
+          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+          borderRadius: "0% 0% 0% 0%",
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: "#video-frame",
+            start: "center center",
+            end: "bottom center",
+            scrub: true,
+          },
+        });
 
-    // --------------------------------------------------
-    // MOBILE: skip the text-position animation and the
-    // opacity fades — just show everything in its final
-    // state and play the video. The video-frame clip-path
-    // scroll effect further below still runs on mobile.
-    // No scroll lock needed here since there's nothing to wait for.
-    // --------------------------------------------------
-    if (isMobile) {
-      if (navbar) gsap.set(navbar, { opacity: 1 });
-      gsap.set("#hero-video", { opacity: 1 });
-      gsap.set("#hero-details", { opacity: 1 });
-      gsap.set("#first-name", { opacity: 1, color: "white", x: 0, y: 0 });
-      gsap.set(".lastname", { opacity: 1, color: "white", x: 0, y: 0 });
+        return;
+      }
+
+      // --------------------------------------------------
+      // INITIAL STATE (desktop)
+      // --------------------------------------------------
+
+      if (navbar) gsap.set(navbar, { opacity: 0 });
+      gsap.set("#hero-video", { opacity: 0 });
+      gsap.set("#hero-details", { opacity: 0 });
+      gsap.set("#first-name", { opacity: 1, color: "black" });
+      gsap.set(".lastname", { opacity: 1, color: "black" });
       gsap.set("#video-frame", {
         backgroundColor: "white",
         clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
         borderRadius: "0% 0% 40% 10%",
       });
 
-      video.play().catch(() => { });
+      // Lock scroll (via Lenis) for the duration of the intro animation.
+      lenis?.stop();
+
+      const intro = gsap.timeline({
+        delay: 0.5,
+        onComplete: () => {
+          video.play().catch(() => { });
+          lenis?.start();
+        },
+      });
+
+      // --------------------------------------------------
+      // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
+      // AS ONE COMBINED, CENTERED LINE
+      // (same effect as before — the only change is the
+      // clamp applied to combinedLeft/combinedTop below,
+      // so this can no longer land outside the viewport)
+      // --------------------------------------------------
+
+      const measureContainer = document.createElement("div");
+      measureContainer.style.position = "fixed";
+      measureContainer.style.top = "0";
+      measureContainer.style.left = "0";
+      measureContainer.style.visibility = "hidden";
+      measureContainer.style.whiteSpace = "nowrap";
+      measureContainer.style.display = "flex";
+      measureContainer.style.alignItems = "baseline";
+      measureContainer.style.gap = "20px"; // space between words, tune as needed
+
+      // Clone classes so font-size/weight match the real headings.
+      const firstClone = firstName.cloneNode(true);
+      const lastClone = lastName.cloneNode(true);
+
+      // Reset any absolute positioning inherited from the originals.
+      firstClone.style.position = "static";
+      lastClone.style.position = "static";
+      firstClone.style.opacity = "1";
+      lastClone.style.opacity = "1";
+
+      measureContainer.appendChild(firstClone);
+      measureContainer.appendChild(lastClone);
+      document.body.appendChild(measureContainer);
+
+      // Center this combined block on screen.
+      const combinedRect = measureContainer.getBoundingClientRect();
+      const combinedCenterX = window.innerWidth / 2;
+      const combinedCenterY = window.innerHeight / 2;
+
+      // Safe margin from the screen edge so the block never gets
+      // clipped even when it's wider than the viewport (happens on
+      // narrow/mobile screens where "RANDALL" + "AQUIN" combined
+      // don't fit on one line).
+      const edgeMargin = 16;
+
+      let combinedLeft = combinedCenterX - combinedRect.width / 2;
+      let combinedTop = combinedCenterY - combinedRect.height / 2;
+
+      const maxLeft = window.innerWidth - edgeMargin - combinedRect.width;
+      const maxTop = window.innerHeight - edgeMargin - combinedRect.height;
+
+      // Clamp so the left edge is never less than edgeMargin, and the
+      // right edge never exceeds the viewport minus edgeMargin. If the
+      // block is wider than the viewport, this pins it to edgeMargin
+      // from the left instead of computing a negative (off-screen) left.
+      combinedLeft = Math.min(Math.max(combinedLeft, edgeMargin), Math.max(edgeMargin, maxLeft));
+      combinedTop = Math.min(Math.max(combinedTop, edgeMargin), Math.max(edgeMargin, maxTop));
+
+      const firstCloneRect = firstClone.getBoundingClientRect();
+      const lastCloneRect = lastClone.getBoundingClientRect();
+
+      // Where each word WOULD be, in the centered (and clamped) combined line.
+      const targetFirstLeft = combinedLeft + (firstCloneRect.left - combinedRect.left);
+      const targetFirstTop = combinedTop + (firstCloneRect.top - combinedRect.top);
+
+      const targetLastLeft = combinedLeft + (lastCloneRect.left - combinedRect.left);
+      const targetLastTop = combinedTop + (lastCloneRect.top - combinedRect.top);
+
+      document.body.removeChild(measureContainer);
+
+      // --------------------------------------------------
+      // NOW COMPARE TO EACH WORD'S ACTUAL NATURAL POSITION
+      // --------------------------------------------------
+
+      const firstRect = firstName.getBoundingClientRect();
+      const lastRect = lastName.getBoundingClientRect();
+
+      const firstX = targetFirstLeft - firstRect.left;
+      const firstY = targetFirstTop - firstRect.top;
+
+      const lastX = targetLastLeft - lastRect.left;
+      const lastY = targetLastTop - lastRect.top;
+
+      intro.fromTo(
+        "#first-name",
+        { x: firstX, y: firstY, color: "black", opacity: 1 },
+        { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
+        0
+      );
+
+      intro.fromTo(
+        ".lastname",
+        { x: lastX, y: lastY, color: "black", opacity: 1 },
+        { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
+        0
+      );
+
+      intro.to("#hero-video", { opacity: 1, duration: 1.8, ease: "power2.inOut" }, 0.6);
+
+      if (navbar) {
+        intro.to(navbar, { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
+      }
+
+      intro.to("#hero-details", { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
 
       gsap.from("#video-frame", {
         clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
@@ -79,156 +204,14 @@ const Hero = () => {
         },
       });
 
-      return;
-    }
-
-    // --------------------------------------------------
-    // INITIAL STATE (desktop)
-    // --------------------------------------------------
-
-    if (navbar) gsap.set(navbar, { opacity: 0 });
-    gsap.set("#hero-video", { opacity: 0 });
-    gsap.set("#hero-details", { opacity: 0 });
-    gsap.set("#first-name", { opacity: 1, color: "black" });
-    gsap.set(".lastname", { opacity: 1, color: "black" });
-    gsap.set("#video-frame", {
-      backgroundColor: "white",
-      clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
-      borderRadius: "0% 0% 40% 10%",
-    });
-
-    // Lock scroll for the duration of the intro animation.
-    lockScroll();
-
-    const intro = gsap.timeline({
-      delay: 0.5,
-      onComplete: () => {
-        video.play().catch(() => { });
-        unlockScroll();
-      },
-    });
-
-    // --------------------------------------------------
-    // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
-    // AS ONE COMBINED, CENTERED LINE
-    // (same effect as before — the only change is the
-    // clamp applied to combinedLeft/combinedTop below,
-    // so this can no longer land outside the viewport)
-    // --------------------------------------------------
-
-    const measureContainer = document.createElement("div");
-    measureContainer.style.position = "fixed";
-    measureContainer.style.top = "0";
-    measureContainer.style.left = "0";
-    measureContainer.style.visibility = "hidden";
-    measureContainer.style.whiteSpace = "nowrap";
-    measureContainer.style.display = "flex";
-    measureContainer.style.alignItems = "baseline";
-    measureContainer.style.gap = "20px"; // space between words, tune as needed
-
-    // Clone classes so font-size/weight match the real headings.
-    const firstClone = firstName.cloneNode(true);
-    const lastClone = lastName.cloneNode(true);
-
-    // Reset any absolute positioning inherited from the originals.
-    firstClone.style.position = "static";
-    lastClone.style.position = "static";
-    firstClone.style.opacity = "1";
-    lastClone.style.opacity = "1";
-
-    measureContainer.appendChild(firstClone);
-    measureContainer.appendChild(lastClone);
-    document.body.appendChild(measureContainer);
-
-    // Center this combined block on screen.
-    const combinedRect = measureContainer.getBoundingClientRect();
-    const combinedCenterX = window.innerWidth / 2;
-    const combinedCenterY = window.innerHeight / 2;
-
-    // Safe margin from the screen edge so the block never gets
-    // clipped even when it's wider than the viewport (happens on
-    // narrow/mobile screens where "RANDALL" + "AQUIN" combined
-    // don't fit on one line).
-    const edgeMargin = 16;
-
-    let combinedLeft = combinedCenterX - combinedRect.width / 2;
-    let combinedTop = combinedCenterY - combinedRect.height / 2;
-
-    const maxLeft = window.innerWidth - edgeMargin - combinedRect.width;
-    const maxTop = window.innerHeight - edgeMargin - combinedRect.height;
-
-    // Clamp so the left edge is never less than edgeMargin, and the
-    // right edge never exceeds the viewport minus edgeMargin. If the
-    // block is wider than the viewport, this pins it to edgeMargin
-    // from the left instead of computing a negative (off-screen) left.
-    combinedLeft = Math.min(Math.max(combinedLeft, edgeMargin), Math.max(edgeMargin, maxLeft));
-    combinedTop = Math.min(Math.max(combinedTop, edgeMargin), Math.max(edgeMargin, maxTop));
-
-    const firstCloneRect = firstClone.getBoundingClientRect();
-    const lastCloneRect = lastClone.getBoundingClientRect();
-
-    // Where each word WOULD be, in the centered (and clamped) combined line.
-    const targetFirstLeft = combinedLeft + (firstCloneRect.left - combinedRect.left);
-    const targetFirstTop = combinedTop + (firstCloneRect.top - combinedRect.top);
-
-    const targetLastLeft = combinedLeft + (lastCloneRect.left - combinedRect.left);
-    const targetLastTop = combinedTop + (lastCloneRect.top - combinedRect.top);
-
-    document.body.removeChild(measureContainer);
-
-    // --------------------------------------------------
-    // NOW COMPARE TO EACH WORD'S ACTUAL NATURAL POSITION
-    // --------------------------------------------------
-
-    const firstRect = firstName.getBoundingClientRect();
-    const lastRect = lastName.getBoundingClientRect();
-
-    const firstX = targetFirstLeft - firstRect.left;
-    const firstY = targetFirstTop - firstRect.top;
-
-    const lastX = targetLastLeft - lastRect.left;
-    const lastY = targetLastTop - lastRect.top;
-
-    intro.fromTo(
-      "#first-name",
-      { x: firstX, y: firstY, color: "black", opacity: 1 },
-      { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
-      0
-    );
-
-    intro.fromTo(
-      ".lastname",
-      { x: lastX, y: lastY, color: "black", opacity: 1 },
-      { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
-      0
-    );
-
-    intro.to("#hero-video", { opacity: 1, duration: 1.8, ease: "power2.inOut" }, 0.6);
-
-    if (navbar) {
-      intro.to(navbar, { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
-    }
-
-    intro.to("#hero-details", { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
-
-    gsap.from("#video-frame", {
-      clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-      borderRadius: "0% 0% 0% 0%",
-      ease: "power1.inOut",
-      scrollTrigger: {
-        trigger: "#video-frame",
-        start: "center center",
-        end: "bottom center",
-        scrub: true,
-      },
-    });
-
-    // Safety net: if the component unmounts before the intro
-    // finishes, make sure scroll gets unlocked.
-    return () => {
-      unlockScroll();
-    };
-  });
+      // Safety net: if the component unmounts before the intro
+      // finishes, make sure scroll gets unlocked.
+      return () => {
+        lenis?.start();
+      };
+    },
+    { dependencies: [lenis] }
+  );
 
   return (
     <div className="relative h-dvh w-screen overflow-x-hidden">
