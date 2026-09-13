@@ -216,9 +216,9 @@ const Work = () => {
                             style={{ zIndex: total - i, backgroundColor: project.color }}
                             className="absolute left-1/2 top-1/2 flex size-full flex-col justify-center overflow-hidden rounded-2xl p-6 will-change-transform sm:p-10 md:p-14"
                         >
-                            <div className="flex h-full flex-col gap-4 md:flex-row md:items-center md:gap-14">
+                            <div className="flex flex-col  gap-[4rem] md:h-full md:flex-row md:items-center md:gap-14">
                                 {/* Left: details */}
-                                <div className="flex flex-1 flex-col gap-3 md:gap-6">
+                                <div className="flex flex-col gap-3 md:flex-1 md:gap-6">
                                     <div className="flex items-start justify-between gap-6">
                                         <h3 className="bento-title special-font max-w-xl text-3xl uppercase leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl">
                                             {project.heading}
@@ -230,7 +230,7 @@ const Work = () => {
                                     <p className="max-w-lg font-circular-web text-sm text-white/70 md:text-base">
                                         {project.description}
                                     </p>
-                                    <div className="mt-auto flex flex-wrap gap-x-6 gap-y-3 pt-4 md:pt-0">
+                                    <div className="flex flex-wrap gap-x-6 gap-y-3 md:mt-auto md:pt-0">
                                         {project.tags.map((tag) => (
                                             <div key={tag} className="flex flex-col items-start gap-1.5">
                                                 <span className="h-0 w-0 border-x-4 border-x-transparent border-t-[6px] border-t-white/40" />
