@@ -280,7 +280,7 @@ const Work = () => {
                                 </div>
 
                                 {/* Right: device mockup */}
-                                <div className="relative mx-auto w-full max-w-[260px] shrink-0 pb-8 sm:max-w-[380px] sm:pb-10 md:mx-0 md:w-[560px] md:max-w-none md:pb-14">
+                                <div className="relative mx-auto w-full max-w-[100%] shrink-0 pb-8 sm:max-w-[100%] sm:pb-10 md:mx-0 md:w-[560px] md:max-w-none md:pb-14">
                                     {/* Laptop */}
                                     <div className="relative">
                                         <div className="overflow-hidden rounded-t-[15px] border-2 border-b-0 border-white/15 bg-black shadow-2xl md:rounded-t-xl md:border-[8px]">
