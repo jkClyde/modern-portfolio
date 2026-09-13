@@ -8,6 +8,7 @@ import Story from "../components/Story";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 import Work from "../components/Work";
+import Services from "../components/Services";
 
 function Home() {
     useEffect(() => {
@@ -33,9 +34,8 @@ function Home() {
             <About />
             <Work />
             <div className="-mt-[300px]">
-                <Features />
+                <Services />
             </div>
-            <Story />
             <Contact />
             <Footer />
         </>
