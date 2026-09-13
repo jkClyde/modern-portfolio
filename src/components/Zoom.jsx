@@ -79,7 +79,7 @@ const ZoomParallax = () => {
     return (
         <div
             ref={container}
-            className="relative h-[100vh] overflow-hidden"
+            className="relative h-dvh overflow-hidden"
             id="gallery"
         >
             {/* CENTER CONTENT */}
@@ -89,7 +89,7 @@ const ZoomParallax = () => {
                 style={overlayStyle}
             >
                 <div
-                    className="contentContainer md:w-[25vw] h-[23vh] md:h-[25vh] relative overflow-auto shadow flex flex-col justify-center"
+                    className="contentContainer w-[110px] md:w-[25vw] h-[23vh] md:h-[25vh] relative overflow-auto shadow flex flex-col justify-center"
                     style={{
                         backgroundImage: `url(img/image.png)`,
                         backgroundSize: "cover",

@@ -248,7 +248,6 @@ const Hero = () => {
               </p>
 
               <Button
-                id="watch-trailer"
                 title="Download Resume"
                 leftIcon={<TiLocationArrow />}
                 containerClass="bg-[#4B3FD1] flex-center gap-1 text-white"

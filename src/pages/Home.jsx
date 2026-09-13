@@ -12,16 +12,12 @@ import Footer from "../components/Footer";
 import Work from "../components/Work";
 import Services from "../components/Services";
 
-const MOBILE_BREAKPOINT = 768; // matches Tailwind's `md` breakpoint
-const MOBILE_TOUCH_MULTIPLIER = 0.6; // <1 = a swipe covers less scroll distance ("resistance"), still 1:1 responsive, just damped
-const DESKTOP_TOUCH_MULTIPLIER = 1; // default Lenis feel on trackpad/desktop touch
+const MOBILE_BREAKPOINT = 768;
+const MOBILE_TOUCH_MULTIPLIER = 0.6;
+const DESKTOP_TOUCH_MULTIPLIER = 1;
 
 function Home() {
     useEffect(() => {
-        // Single, page-wide Lenis instance. Sections (Hero, Work, etc.)
-        // should NOT create their own — two Lenis instances fight over
-        // scroll position, which is what was causing sections to suddenly
-        // jump mid-scroll.
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
         const lenis = new Lenis({
             touchMultiplier: isMobile ? MOBILE_TOUCH_MULTIPLIER : DESKTOP_TOUCH_MULTIPLIER,

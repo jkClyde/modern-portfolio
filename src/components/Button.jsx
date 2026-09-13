@@ -5,7 +5,7 @@ const Button = ({ id, title, rightIcon, leftIcon, containerClass }) => {
     <button
       id={id}
       className={clsx(
-        "group relative z-10 w-fit cursor-pointer overflow-hidden rounded-full bg-[#f97316] px-7 py-3 text-[#0f172a]",
+        "group relative z-10 w-fit cursor-pointer overflow-hidden rounded-full  px-7 py-3 text-[#0f172a]",
         containerClass
       )}
     >

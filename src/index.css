@@ -171,7 +171,7 @@ body {
 .three-body {
   --uib-size: 35px;
   --uib-speed: 0.8s;
-  --uib-color: #f97316;
+  --uib-color: #4B3FD1;
   position: relative;
   display: inline-block;
   height: var(--uib-size);
