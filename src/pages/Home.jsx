@@ -23,6 +23,11 @@ function Home() {
             touchMultiplier: isMobile ? MOBILE_TOUCH_MULTIPLIER : DESKTOP_TOUCH_MULTIPLIER,
         });
 
+        // Expose the instance so other components (e.g. Hero) can
+        // call lenis.stop() / lenis.start() to lock scroll during
+        // in-page animations.
+        window.lenis = lenis;
+
         lenis.on("scroll", ScrollTrigger.update);
 
         const raf = (time) => lenis.raf(time * 1000);
@@ -41,6 +46,7 @@ function Home() {
             if (raf2) cancelAnimationFrame(raf2);
             gsap.ticker.remove(raf);
             lenis.destroy();
+            window.lenis = null;
         };
     }, []);
 

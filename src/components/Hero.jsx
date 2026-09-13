@@ -25,10 +25,33 @@ const Hero = () => {
     const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
     // --------------------------------------------------
+    // SCROLL LOCK HELPERS
+    // Lenis re-implements scrolling itself (transform-based,
+    // driven by its own RAF loop), so native overflow:hidden /
+    // preventDefault() on wheel/touch does nothing against it.
+    // We have to stop Lenis directly via the instance exposed
+    // on window.lenis (see Home.jsx).
+    // --------------------------------------------------
+    let scrollLocked = false;
+
+    const lockScroll = () => {
+      if (scrollLocked) return;
+      scrollLocked = true;
+      window.lenis?.stop();
+    };
+
+    const unlockScroll = () => {
+      if (!scrollLocked) return;
+      scrollLocked = false;
+      window.lenis?.start();
+    };
+
+    // --------------------------------------------------
     // MOBILE: skip the text-position animation and the
     // opacity fades — just show everything in its final
     // state and play the video. The video-frame clip-path
     // scroll effect further below still runs on mobile.
+    // No scroll lock needed here since there's nothing to wait for.
     // --------------------------------------------------
     if (isMobile) {
       if (navbar) gsap.set(navbar, { opacity: 1 });
@@ -74,10 +97,14 @@ const Hero = () => {
       borderRadius: "0% 0% 40% 10%",
     });
 
+    // Lock scroll for the duration of the intro animation.
+    lockScroll();
+
     const intro = gsap.timeline({
       delay: 0.5,
       onComplete: () => {
         video.play().catch(() => { });
+        unlockScroll();
       },
     });
 
@@ -195,6 +222,12 @@ const Hero = () => {
         scrub: true,
       },
     });
+
+    // Safety net: if the component unmounts before the intro
+    // finishes, make sure scroll gets unlocked.
+    return () => {
+      unlockScroll();
+    };
   });
 
   return (
