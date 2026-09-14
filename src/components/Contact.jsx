@@ -41,7 +41,7 @@ const Contact = () => {
         {/* Right: mirrored image cards for balance on larger screens */}
         <div className="absolute -right-16 top-10 hidden w-56 rotate-3 md:right-10 lg:block lg:w-72">
           <ImageCard
-            src={images.workspace}
+            src="/img/abstract/abs1.jpg"
             alt="Developer workspace with multiple monitors"
             className="aspect-[3/4]"
           />
