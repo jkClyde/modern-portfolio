@@ -31,49 +31,45 @@ const services = [
         name: "WordPress Development",
         video: "https://assets.mixkit.co/videos/41646/41646-720.mp4",
         poster: "https://assets.mixkit.co/videos/41646/41646-thumb-720-0.jpg",
-        tags: ["WordPress", "Elementor"],
+        tags: ["WordPress", "Elementor", "WooCommerce"],
         description:
-            "Custom builds on WordPress and Elementor, tuned for speed and easy edits.",
+            "Custom WordPress websites built for businesses, with responsive layouts and easy content management.",
     },
+
     {
-        name: "Web Applications",
+        name: "Web Development",
         video: "https://assets.mixkit.co/videos/41647/41647-720.mp4",
         poster: "https://assets.mixkit.co/videos/41647/41647-thumb-720-0.jpg",
-        tags: ["React", "Next.js"],
+        tags: ["React", "Next.js", "Vue"],
         description:
-            "Dashboards and internal tools built with React, Next.js, and Laravel.",
+            "Modern websites built with React, Next.js, Vue, and Laravel, tailored to your business and project needs.",
     },
+
     {
-        name: "GoHighLevel Automation",
+        name: "Web Applications",
         video: "https://assets.mixkit.co/videos/32651/32651-720.mp4",
         poster: "https://assets.mixkit.co/videos/32651/32651-thumb-720-0.jpg",
-        tags: ["GoHighLevel", "Automation"],
+        tags: ["Next.js", "Laravel", "Vue"],
         description:
-            "Funnels, CRM pipelines, and automations that run without you.",
+            "Custom web applications, dashboards, and management systems designed around your workflow.",
     },
+
     {
-        name: "Mobile Apps",
+        name: "GoHighLevel",
+        video: "https://assets.mixkit.co/videos/4915/4915-720.mp4",
+        poster: "https://assets.mixkit.co/videos/4915/4915-thumb-720-0.jpg",
+        tags: ["GoHighLevel", "Funnels", "CRM"],
+        description:
+            "GoHighLevel websites, funnels, and CRM setups designed to help businesses manage leads and customers.",
+    },
+
+    {
+        name: "Mobile Development",
         video: "https://assets.mixkit.co/videos/4915/4915-720.mp4",
         poster: "https://assets.mixkit.co/videos/4915/4915-thumb-720-0.jpg",
         tags: ["React Native", "Expo"],
         description:
-            "Cross-platform apps built once with React Native, shipped to both stores.",
-    },
-    {
-        name: "Systems Engineering",
-        video: "https://assets.mixkit.co/videos/22027/22027-720.mp4",
-        poster: "https://assets.mixkit.co/videos/22027/22027-thumb-720-0.jpg",
-        tags: ["Backend", "IoT"],
-        description:
-            "Backend systems and IoT integrations built to handle real data.",
-    },
-    {
-        name: "AI Solutions",
-        video: "https://assets.mixkit.co/videos/31590/31590-720.mp4",
-        poster: "https://assets.mixkit.co/videos/31590/31590-thumb-720-0.jpg",
-        tags: ["AI", "Automation"],
-        description:
-            "LLM-powered tools and chat interfaces built into your existing workflow.",
+            "Cross-platform mobile applications built with React Native and Expo for Android and iOS.",
     },
 ];
 
@@ -177,7 +173,7 @@ const Services = () => {
                 <div className="container relative mx-auto h-full px-5 md:px-10">
                     <div
                         ref={trackRef}
-                        className="absolute inset-y-0 left-5 flex h-full w-max items-stretch gap-4 will-change-transform md:left-10 md:gap-6"
+                        className="absolute inset-y-0 left-5 flex h-[70vh] w-max items-stretch gap-4 will-change-transform sm:h-[75vh] md:left-10 md:h-full md:gap-6"
                     >
                         {services.map((service) => (
                             <div
