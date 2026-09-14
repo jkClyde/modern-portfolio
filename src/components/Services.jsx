@@ -8,6 +8,9 @@ import { useGSAP } from "@gsap/react";
 
 import { ScrollTrigger } from "gsap/all";
 
+import Laptop3D from "./3d/Laptop3D";
+
+
 gsap.registerPlugin(ScrollTrigger);
 
 // --------------------------------------------------
@@ -16,6 +19,11 @@ gsap.registerPlugin(ScrollTrigger);
 // Swap `video` for your own footage per service whenever you have it —
 // these are free Mixkit stock clips chosen to roughly match each
 // service (coding, gears/automation, a phone, a circuit board, etc).
+//
+// NOTE: the first card ("WordPress Development") now renders the
+// Laptop3D model instead of its video — see the conditional render
+// below. Its `video`/`poster` fields are kept in the data so it's a
+// one-line change to swap back if needed.
 // --------------------------------------------------
 
 const services = [
@@ -176,15 +184,19 @@ const Services = () => {
                                 key={service.name}
                                 className="service-panel relative h-full w-[85vw] shrink-0 overflow-hidden rounded-2xl bg-white/5 sm:w-[55vw] md:w-[38vw] lg:w-[31vw]"
                             >
-                                <video
-                                    src={service.video}
-                                    poster={service.poster}
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                    className="absolute inset-0 size-full object-cover"
-                                />
+                                {service.name === "WordPress Development" ? (
+                                    <Laptop3D />
+                                ) : (
+                                    <video
+                                        src={service.video}
+                                        poster={service.poster}
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                        className="absolute inset-0 size-full object-cover"
+                                    />
+                                )}
 
                                 <div className="absolute inset-x-0 top-0 flex flex-wrap gap-2 p-3 sm:p-4">
                                     {service.tags.map((tag) => (
@@ -255,4 +267,4 @@ const Services = () => {
     );
 };
 
-export default Services;    
+export default Services;
