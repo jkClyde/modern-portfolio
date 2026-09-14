@@ -112,13 +112,24 @@ const projects = [
 const CARD_Y_OFFSET = 8;        // % vertical offset per waiting layer
 const CARD_SCALE_STEP = 0.075;  // scale reduction per waiting layer
 const EXIT_Y_PERCENT = -200;    // where the active card ends up on exit
-const EXIT_ROTATION_X = 35;     // degrees it tilts back on exit
+const EXIT_ROTATION_X = 35;     // degrees it tilts back on exit (desktop only — see isMobile branch below)
 const PIN_TOP_OFFSET_MOBILE = 40;  // px gap on small screens
 const PIN_TOP_OFFSET_DESKTOP = 80; // px gap on md+ screens
 const MOBILE_BREAKPOINT = 768;     // matches Tailwind's `md` breakpoint
 const SCROLL_LENGTH_MULTIPLIER = 0.5; // viewport-heights of scroll per card — this directly sets the size of the reserved pin-spacer gap before the next section
-const MOBILE_SCRUB = 1.4;  // slightly heavier smoothing so the card eases rather than jumps
+const MOBILE_SCRUB = 0.9;  // lowered from 1.4 — a heavy scrub value means GSAP keeps animating after the finger lifts, which reads as extra lag on touch
 const DESKTOP_SCRUB = 1;
+
+// How big a single-frame scroll delta (px) has to be before ScrollTrigger
+// treats it as a "fast scroll" and snaps straight to a boundary instead of
+// animating through the pin. Mobile flings can legitimately produce very
+// large single-tick deltas (much bigger than a desktop wheel tick), so the
+// GSAP default was triggering on ordinary fast flicks — specifically on
+// scroll-up, where there's very little runway (PIN_TOP_OFFSET) before the
+// start boundary — and snapping the pin open early, which looked like a
+// jump straight back up to Hero/About. Raising the threshold on mobile
+// stops normal flings from being misread as "fast scroll end" events.
+const FAST_SCROLL_END_THRESHOLD_MOBILE = 8000;
 
 const Work = () => {
     const total = projects.length;
@@ -157,6 +168,13 @@ const Work = () => {
                 xPercent: -50,
                 yPercent: -50 + i * CARD_Y_OFFSET,
                 scale: 1 - i * CARD_SCALE_STEP,
+                // Pre-declare the properties we'll animate so the browser can
+                // promote each card to its own compositor layer up front,
+                // instead of promoting it mid-scroll the first time rotationX
+                // or transform changes — that late promotion is itself a
+                // dropped-frame moment, which reads as a "jolt" right as the
+                // pin engages.
+                force3D: true,
             });
         });
 
@@ -172,11 +190,16 @@ const Work = () => {
             // updates can jump across the entire pinned range in one tick.
             // fastScrollEnd tells ScrollTrigger to snap straight to whichever
             // boundary (pinned-in or released) instead of trying to interpolate
-            // through it — without this, a quick upward flick could leave the
-            // section "stuck" pinned on top of About for a moment.
-            fastScrollEnd: true,
-            // Precomputes the pin position a tick early so there's no lag/flash
-            // right at the pin boundary during fast scrolling.
+            // through it. `true` uses GSAP's default (fairly low) threshold,
+            // which was firing on ordinary mobile flings — especially
+            // scrolling UP, where there's little runway before the start
+            // boundary — and snapping the pin open early. Mobile gets an
+            // explicit, much higher threshold instead.
+            fastScrollEnd: isMobile ? FAST_SCROLL_END_THRESHOLD_MOBILE : true,
+            // Precomputes the pin position slightly ahead of the boundary so
+            // there's no lag/flash right at the pin engage point. Keep this
+            // on for both — turning it off is what usually causes a visible
+            // "pop" the instant the pin locks in.
             anticipatePin: 1,
             onUpdate: (self) => {
                 const progress = self.progress;
@@ -191,14 +214,21 @@ const Work = () => {
                         // Already had its turn — parked off-screen.
                         gsap.set(card, {
                             yPercent: EXIT_Y_PERCENT,
-                            rotationX: EXIT_ROTATION_X,
+                            // Skip the 3D tilt on mobile: rotationX forces the
+                            // browser to keep re-flattening/recompositing a
+                            // 3D transform on a blurred layer every scroll
+                            // tick, which is one of the more expensive things
+                            // you can ask a phone GPU to do continuously.
+                            rotationX: isMobile ? 0 : EXIT_ROTATION_X,
                             scale: 1,
                         });
                     } else if (i === activeIndex) {
                         // Currently flipping/sliding away.
                         gsap.set(card, {
                             yPercent: gsap.utils.interpolate(-50, EXIT_Y_PERCENT, segProgress),
-                            rotationX: gsap.utils.interpolate(0, EXIT_ROTATION_X, segProgress),
+                            rotationX: isMobile
+                                ? 0
+                                : gsap.utils.interpolate(0, EXIT_ROTATION_X, segProgress),
                             scale: 1,
                         });
                     } else {
@@ -265,7 +295,7 @@ const Work = () => {
                                 zIndex: total - i,
                                 backgroundColor: glassTint(project.color, 0.45),
                             }}
-                            className="absolute left-1/2 top-1/2 flex size-full flex-col justify-center overflow-hidden rounded-2xl p-6 will-change-transform sm:p-10 md:p-14 border border-white/20 shadow-2xl shadow-black/40 backdrop-blur-2xl"
+                            className="absolute left-1/2 top-1/2 flex size-full flex-col justify-center overflow-hidden rounded-2xl p-6 sm:p-10 md:p-14 border border-white/20 shadow-2xl shadow-black/40 backdrop-blur-md md:backdrop-blur-2xl [will-change:transform] [transform:translateZ(0)]"
                         >
                             {/* Soft glow blobs behind the glass, tinted with the project's color,
                                 so there's something with color/texture for the blur to pick up */}
