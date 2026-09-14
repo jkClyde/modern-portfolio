@@ -43,6 +43,17 @@ const shade = (hex, percent) => {
 const cardGradient = (hex) =>
     `linear-gradient(135deg, ${shade(hex, 15)}, ${shade(hex, -20)})`;
 
+// Translucent tint of a project's color, used as the glass card's surface color.
+// Darkened first so white text stays readable against the glass.
+const glassTint = (hex, alpha) => {
+    const darkened = shade(hex, -35);
+    const num = parseInt(darkened.replace("#", ""), 16);
+    const r = (num >> 16) & 0xff;
+    const g = (num >> 8) & 0xff;
+    const b = num & 0xff;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const projects = [
     {
         client: "Ayoha",
@@ -50,7 +61,7 @@ const projects = [
         description:
             "A modern landing page built with Next.js, Tailwind CSS, and GSAP, focused on creating an engaging and immersive browsing experience through smooth scroll interactions and dynamic animations. The page uses scroll-driven transitions, motion effects, and carefully timed visual elements to guide users through the content while maintaining a clean and responsive design.",
         tags: ["Next.js", "Tailwind CSS", "GSAP"],
-        color: "#4B3FD1",
+        color: "#5B21B6", // violet
         link: "#",
         desktop: "/img/works/ayoha-desktop.png",
         mobile: "/img/works/ayoha-mobile.png",
@@ -61,7 +72,7 @@ const projects = [
         description:
             "A modern e-commerce store built with Next.js and Tailwind CSS, using WooCommerce as a headless CMS for product and order management. The frontend delivers a responsive shopping experience with dynamic product browsing, cart functionality, and a streamlined checkout flow.",
         tags: ["NextJS", "Tailwind CSS", "WooCommerce", "REST API"],
-        color: "#FF7A21",
+        color: "#0369A1", // teal-blue
         link: "#",
         desktop: "/img/works/bdn-desktop.png",
         mobile: "/img/works/bdn-desktop.png",
@@ -72,7 +83,7 @@ const projects = [
         description:
             "A mobile application for tracking produce batches throughout the supply chain, providing chain-of-custody tracking with real-time location mapping and IoT sensor monitoring. The app displays live temperature, humidity, and vibration readings to help monitor produce conditions from harvest to delivery.",
         tags: ["React Native", "Supabase", "IoT"],
-        color: "#E5342C",
+        color: "#15803D", // green
         link: "#",
         desktop: "/img/works/calatrace-dashboard.png",
         mobile: "/img/works/calatrace-mobile.png",
@@ -84,7 +95,7 @@ const projects = [
         description:
             "A project management SaaS platform designed to help teams organize projects, manage tasks, and track progress in one centralized workspace. Built with a modern responsive interface featuring role-based access, project and task management, and a structured workflow for keeping teams organized and productive.",
         tags: ["NextJS", "Firebase", "Tailwind", "ShadCN", "Prisma"],
-        color: "#4F46E5",
+        color: "#9D174D", // deep purple/plum
         link: "#",
         desktop: "/img/works/pms-desktop.png",
         mobile: "/img/works/pms-mobile.png",
@@ -242,11 +253,28 @@ const Work = () => {
                             ref={(el) => (cardRefs.current[i] = el)}
                             style={{
                                 zIndex: total - i,
-                                backgroundImage: cardGradient(project.color),
+                                backgroundColor: glassTint(project.color, 0.45),
                             }}
-                            className="absolute left-1/2 top-1/2 flex size-full flex-col justify-center overflow-hidden rounded-2xl p-6 will-change-transform sm:p-10 md:p-14"
+                            className="absolute left-1/2 top-1/2 flex size-full flex-col justify-center overflow-hidden rounded-2xl p-6 will-change-transform sm:p-10 md:p-14 border border-white/20 shadow-2xl shadow-black/40 backdrop-blur-2xl"
                         >
-                            <div className="flex flex-col  gap-[4rem] md:h-full md:flex-row md:items-center md:gap-14">
+                            {/* Soft glow blobs behind the glass, tinted with the project's color,
+                                so there's something with color/texture for the blur to pick up */}
+                            <div
+                                className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full opacity-25 blur-3xl"
+                                style={{ backgroundColor: project.color }}
+                            />
+                            <div
+                                className="pointer-events-none absolute -bottom-24 -right-24 size-72 rounded-full opacity-20 blur-3xl"
+                                style={{ backgroundColor: shade(project.color, -20) }}
+                            />
+
+                            {/* Dark scrim so text keeps contrast regardless of the underlying color */}
+                            <div className="pointer-events-none absolute inset-0 bg-black/35" />
+
+                            {/* Faint top sheen for the classic glass "catching light" edge */}
+                            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+
+                            <div className="relative flex flex-col  gap-[4rem] md:h-full md:flex-row md:items-center md:gap-14">
                                 {/* Left: details */}
                                 <div className="flex flex-col gap-3 md:flex-1 md:gap-6">
                                     <div className="flex items-start justify-between gap-6">
@@ -257,7 +285,7 @@ const Work = () => {
                                             ({String(i + 1).padStart(2, "0")})
                                         </span>
                                     </div>
-                                    <p className="max-w-lg font-circular-web text-sm text-white/70 md:text-base">
+                                    <p className="max-w-lg font-circular-web text-sm text-white/80 md:text-base">
                                         {project.description}
                                     </p>
                                     <div className="flex flex-wrap gap-x-6 gap-y-3 md:mt-auto md:pt-0">
@@ -272,10 +300,10 @@ const Work = () => {
                                     </div>
 
                                     <Button
-
                                         title="View Website"
                                         leftIcon={<TiLocationArrow />}
-                                        containerClass="bg-white flex-center gap-1 text-[4B3FD1]"
+                                        containerClass="bg-white flex-center gap-1"
+                                        style={{ color: project.color }}
                                     />
                                 </div>
 
