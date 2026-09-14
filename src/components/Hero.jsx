@@ -3,78 +3,102 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 import { useLenis } from "lenis/react";
 import { TiLocationArrow } from "react-icons/ti";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Button from "./Button";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// ---- tunables, named instead of scattered magic numbers ----
+const MOBILE_BREAKPOINT = "(max-width: 767px)";
+const EDGE_MARGIN = 16; // px, keeps the "combined name" measurement on-screen
+const INTRO_DELAY = 0.5;
+const VIDEO_FADE_DELAY = 0.6;
+const CHROME_FADE_DELAY = 0.9; // navbar + hero details
+
+const VIDEO_FRAME_CLIP_CLOSED = "polygon(14% 0, 72% 0, 88% 90%, 0 95%)";
+const VIDEO_FRAME_CLIP_OPEN = "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
 
 const Hero = () => {
   const [loading, setLoading] = useState(true);
   const lenis = useLenis();
 
-  const handleVideoLoad = () => {
-    setLoading(false);
+  const videoRef = useRef(null);
+  const firstNameRef = useRef(null);
+  const lastNameRef = useRef(null);
+  const videoFrameRef = useRef(null);
+
+  const handleVideoLoad = () => setLoading(false);
+
+  const playVideoSafely = (video) => {
+    video.play().catch((err) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("Autoplay blocked or video failed to play:", err);
+      }
+    });
+  };
+
+  // Scroll-triggered "reveal" clip-path on the video frame.
+  // Shared by both the mobile and desktop code paths.
+  const setupFrameScrollReveal = () => {
+    gsap.from(videoFrameRef.current, {
+      clipPath: VIDEO_FRAME_CLIP_OPEN,
+      borderRadius: "0% 0% 0% 0%",
+      ease: "power1.inOut",
+      scrollTrigger: {
+        trigger: videoFrameRef.current,
+        start: "center center",
+        end: "bottom center",
+        scrub: true,
+      },
+    });
   };
 
   useGSAP(
     () => {
-      const video = document.querySelector("#hero-video");
-      const firstName = document.querySelector("#first-name");
-      const lastName = document.querySelector(".lastname");
-      const navbar = document.querySelector("#main-navbar");
+      const video = videoRef.current;
+      const firstName = firstNameRef.current;
+      const lastName = lastNameRef.current;
+      const navbar = document.querySelector("#main-navbar"); // lives outside this component
+      const videoFrame = videoFrameRef.current;
 
-      if (!video || !firstName || !lastName) return;
+      if (!video || !firstName || !lastName || !videoFrame) return;
 
-      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      const isMobile = window.matchMedia(MOBILE_BREAKPOINT).matches;
 
       // --------------------------------------------------
       // MOBILE: skip the text-position animation and the
       // opacity fades — just show everything in its final
-      // state and play the video. The video-frame clip-path
-      // scroll effect further below still runs on mobile.
-      // No scroll lock needed here since there's nothing to wait for.
+      // state and play the video. The scroll-triggered
+      // frame reveal still runs on mobile.
       // --------------------------------------------------
       if (isMobile) {
         if (navbar) gsap.set(navbar, { opacity: 1 });
-        gsap.set("#hero-video", { opacity: 1 });
+        gsap.set(video, { opacity: 1 });
         gsap.set("#hero-details", { opacity: 1 });
-        gsap.set("#first-name", { opacity: 1, color: "white", x: 0, y: 0 });
-        gsap.set(".lastname", { opacity: 1, color: "white", x: 0, y: 0 });
-        gsap.set("#video-frame", {
+        gsap.set(firstName, { opacity: 1, color: "white", x: 0, y: 0 });
+        gsap.set(lastName, { opacity: 1, color: "white", x: 0, y: 0 });
+        gsap.set(videoFrame, {
           backgroundColor: "white",
-          clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
+          clipPath: VIDEO_FRAME_CLIP_CLOSED,
           borderRadius: "0% 0% 40% 10%",
         });
 
-        video.play().catch(() => { });
-
-        gsap.from("#video-frame", {
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-          borderRadius: "0% 0% 0% 0%",
-          ease: "power1.inOut",
-          scrollTrigger: {
-            trigger: "#video-frame",
-            start: "center center",
-            end: "bottom center",
-            scrub: true,
-          },
-        });
-
+        playVideoSafely(video);
+        setupFrameScrollReveal();
         return;
       }
 
       // --------------------------------------------------
       // INITIAL STATE (desktop)
       // --------------------------------------------------
-
       if (navbar) gsap.set(navbar, { opacity: 0 });
-      gsap.set("#hero-video", { opacity: 0 });
+      gsap.set(video, { opacity: 0 });
       gsap.set("#hero-details", { opacity: 0 });
-      gsap.set("#first-name", { opacity: 1, color: "black" });
-      gsap.set(".lastname", { opacity: 1, color: "black" });
-      gsap.set("#video-frame", {
+      gsap.set(firstName, { opacity: 1, color: "black" });
+      gsap.set(lastName, { opacity: 1, color: "black" });
+      gsap.set(videoFrame, {
         backgroundColor: "white",
-        clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
+        clipPath: VIDEO_FRAME_CLIP_CLOSED,
         borderRadius: "0% 0% 40% 10%",
       });
 
@@ -82,21 +106,18 @@ const Hero = () => {
       lenis?.stop();
 
       const intro = gsap.timeline({
-        delay: 0.5,
+        delay: INTRO_DELAY,
         onComplete: () => {
-          video.play().catch(() => { });
+          playVideoSafely(video);
           lenis?.start();
         },
       });
 
       // --------------------------------------------------
       // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
-      // AS ONE COMBINED, CENTERED LINE
-      // (same effect as before — the only change is the
-      // clamp applied to combinedLeft/combinedTop below,
-      // so this can no longer land outside the viewport)
+      // AS ONE COMBINED, CENTERED LINE. This is the original,
+      // working measurement logic — unchanged.
       // --------------------------------------------------
-
       const measureContainer = document.createElement("div");
       measureContainer.style.position = "fixed";
       measureContainer.style.top = "0";
@@ -105,13 +126,11 @@ const Hero = () => {
       measureContainer.style.whiteSpace = "nowrap";
       measureContainer.style.display = "flex";
       measureContainer.style.alignItems = "baseline";
-      measureContainer.style.gap = "20px"; // space between words, tune as needed
+      measureContainer.style.gap = "20px";
 
-      // Clone classes so font-size/weight match the real headings.
       const firstClone = firstName.cloneNode(true);
       const lastClone = lastName.cloneNode(true);
 
-      // Reset any absolute positioning inherited from the originals.
       firstClone.style.position = "static";
       lastClone.style.position = "static";
       firstClone.style.opacity = "1";
@@ -121,88 +140,60 @@ const Hero = () => {
       measureContainer.appendChild(lastClone);
       document.body.appendChild(measureContainer);
 
-      // Center this combined block on screen.
       const combinedRect = measureContainer.getBoundingClientRect();
       const combinedCenterX = window.innerWidth / 2;
       const combinedCenterY = window.innerHeight / 2;
 
-      // Safe margin from the screen edge so the block never gets
-      // clipped even when it's wider than the viewport (happens on
-      // narrow/mobile screens where "RANDALL" + "AQUIN" combined
-      // don't fit on one line).
-      const edgeMargin = 16;
-
       let combinedLeft = combinedCenterX - combinedRect.width / 2;
       let combinedTop = combinedCenterY - combinedRect.height / 2;
 
-      const maxLeft = window.innerWidth - edgeMargin - combinedRect.width;
-      const maxTop = window.innerHeight - edgeMargin - combinedRect.height;
+      const maxLeft = window.innerWidth - EDGE_MARGIN - combinedRect.width;
+      const maxTop = window.innerHeight - EDGE_MARGIN - combinedRect.height;
 
-      // Clamp so the left edge is never less than edgeMargin, and the
-      // right edge never exceeds the viewport minus edgeMargin. If the
-      // block is wider than the viewport, this pins it to edgeMargin
-      // from the left instead of computing a negative (off-screen) left.
-      combinedLeft = Math.min(Math.max(combinedLeft, edgeMargin), Math.max(edgeMargin, maxLeft));
-      combinedTop = Math.min(Math.max(combinedTop, edgeMargin), Math.max(edgeMargin, maxTop));
+      combinedLeft = Math.min(Math.max(combinedLeft, EDGE_MARGIN), Math.max(EDGE_MARGIN, maxLeft));
+      combinedTop = Math.min(Math.max(combinedTop, EDGE_MARGIN), Math.max(EDGE_MARGIN, maxTop));
 
       const firstCloneRect = firstClone.getBoundingClientRect();
       const lastCloneRect = lastClone.getBoundingClientRect();
 
-      // Where each word WOULD be, in the centered (and clamped) combined line.
       const targetFirstLeft = combinedLeft + (firstCloneRect.left - combinedRect.left);
       const targetFirstTop = combinedTop + (firstCloneRect.top - combinedRect.top);
-
       const targetLastLeft = combinedLeft + (lastCloneRect.left - combinedRect.left);
       const targetLastTop = combinedTop + (lastCloneRect.top - combinedRect.top);
 
       document.body.removeChild(measureContainer);
-
-      // --------------------------------------------------
-      // NOW COMPARE TO EACH WORD'S ACTUAL NATURAL POSITION
-      // --------------------------------------------------
 
       const firstRect = firstName.getBoundingClientRect();
       const lastRect = lastName.getBoundingClientRect();
 
       const firstX = targetFirstLeft - firstRect.left;
       const firstY = targetFirstTop - firstRect.top;
-
       const lastX = targetLastLeft - lastRect.left;
       const lastY = targetLastTop - lastRect.top;
 
       intro.fromTo(
-        "#first-name",
+        firstName,
         { x: firstX, y: firstY, color: "black", opacity: 1 },
         { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
         0
       );
 
       intro.fromTo(
-        ".lastname",
+        lastName,
         { x: lastX, y: lastY, color: "black", opacity: 1 },
         { x: 0, y: 0, color: "white", opacity: 1, duration: 2, ease: "power2.inOut", delay: 0.2 },
         0
       );
 
-      intro.to("#hero-video", { opacity: 1, duration: 1.8, ease: "power2.inOut" }, 0.6);
+      intro.to(video, { opacity: 1, duration: 1.8, ease: "power2.inOut" }, VIDEO_FADE_DELAY);
 
       if (navbar) {
-        intro.to(navbar, { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
+        intro.to(navbar, { opacity: 1, duration: 1.5, ease: "power2.inOut" }, CHROME_FADE_DELAY);
       }
 
-      intro.to("#hero-details", { opacity: 1, duration: 1.5, ease: "power2.inOut" }, 0.9);
+      intro.to("#hero-details", { opacity: 1, duration: 1.5, ease: "power2.inOut" }, CHROME_FADE_DELAY);
 
-      gsap.from("#video-frame", {
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        borderRadius: "0% 0% 0% 0%",
-        ease: "power1.inOut",
-        scrollTrigger: {
-          trigger: "#video-frame",
-          start: "center center",
-          end: "bottom center",
-          scrub: true,
-        },
-      });
+      setupFrameScrollReveal();
 
       // Safety net: if the component unmounts before the intro
       // finishes, make sure scroll gets unlocked.
@@ -228,11 +219,12 @@ const Hero = () => {
 
       {/* VIDEO FRAME */}
       <div
+        ref={videoFrameRef}
         id="video-frame"
         className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-white"
       >
-        {/* VIDEO */}
         <video
+          ref={videoRef}
           id="hero-video"
           src="videos/banner.mp4"
           loop
@@ -242,20 +234,24 @@ const Hero = () => {
           onLoadedData={handleVideoLoad}
         />
 
-        {/* LAST NAME */}
-        <h1 className="lastname special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
+        {/* LAST NAME (foreground, clipped inside the frame) */}
+        <h1
+          ref={lastNameRef}
+          className="lastname special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75"
+        >
           AQUIN
         </h1>
 
-        {/* CONTENT */}
         <div className="absolute left-0 top-0 z-40 size-full">
           <div className="mt-24 px-5 sm:px-10">
-            {/* FIRST NAME */}
-            <h1 id="first-name" className="special-font hero-heading text-blue-100">
+            <h1
+              ref={firstNameRef}
+              id="first-name"
+              className="special-font hero-heading text-blue-100"
+            >
               RANDALL
             </h1>
 
-            {/* DESCRIPTION + BUTTON */}
             <div id="hero-details">
               <p className="mb-5 max-w-66 font-robert-regular text-blue-100">
                 Full-Stack Developer
@@ -273,6 +269,8 @@ const Hero = () => {
         </div>
       </div>
 
+      {/* Fallback "AQUIN": revealed behind the frame once its
+          clip-path opens on scroll. Not a duplicate bug — intentional. */}
       <h1 className="special-font hero-heading absolute bottom-5 right-5 text-black">
         AQUIN
       </h1>

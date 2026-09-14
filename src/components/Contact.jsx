@@ -3,15 +3,12 @@
 import AnimatedTitle from "./AnimatedTitle";
 import { TiLocationArrow } from "react-icons/ti";
 
-// --------------------------------------------------
-// Swap these for real photos of your workspace/screens when you have
-// them — picsum.photos gives real (if random) stock-style images so the
-// layout reads correctly today.
-// --------------------------------------------------
 const images = {
   codeOnScreen: "https://picsum.photos/seed/contact-code/500/650",
   workspace: "https://picsum.photos/seed/contact-workspace/500/650",
 };
+
+import Button from "./Button";
 
 const ImageCard = ({ src, alt, className = "" }) => (
   <div
@@ -65,13 +62,14 @@ const Contact = () => {
             to hearing about new projects and opportunities.
           </p>
 
-          <a
-            href="mailto:hello@example.com"
-            className="border-hsla group relative mt-10 flex w-fit cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-[#4B3FD1] px-7 py-3.5 text-sm uppercase text-white transition-colors duration-300 hover:bg-[#5B4FE0]"
-          >
-            <span className="font-circular-web">Get in touch</span>
-            <TiLocationArrow className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-          </a>
+
+
+          <Button
+
+            title="Send a Message"
+            leftIcon={<TiLocationArrow />}
+            containerClass="bg-[#4B3FD1] flex-center gap-1 text-[white] mt-[20px]"
+          />
         </div>
       </div>
     </div>

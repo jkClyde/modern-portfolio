@@ -273,7 +273,7 @@ const Work = () => {
 
                                     <Button
 
-                                        title="Download Resume"
+                                        title="View Website"
                                         leftIcon={<TiLocationArrow />}
                                         containerClass="bg-white flex-center gap-1 text-[4B3FD1]"
                                     />

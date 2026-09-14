@@ -5,8 +5,6 @@ import { ReactLenis, useLenis } from "lenis/react";
 
 import Hero from "../components/Hero";
 import About from "../components/About";
-import Features from "../components/Features";
-import Story from "../components/Story";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 import Work from "../components/Work";
@@ -16,9 +14,6 @@ const MOBILE_BREAKPOINT = 768;
 const MOBILE_TOUCH_MULTIPLIER = 0.6;
 const DESKTOP_TOUCH_MULTIPLIER = 1;
 
-// Drives Lenis off gsap.ticker (instead of ReactLenis's default
-// internal RAF loop) and keeps ScrollTrigger in sync with Lenis's
-// scroll position. Mirrors the previous manual useEffect exactly.
 function LenisGsapSync() {
     const lenis = useLenis(() => {
         ScrollTrigger.update();
@@ -49,7 +44,6 @@ function LenisGsapSync() {
 }
 
 function Home() {
-    // Computed once on mount, same as the previous implementation.
     const [lenisOptions] = useState(() => ({
         touchMultiplier:
             window.innerWidth < MOBILE_BREAKPOINT
