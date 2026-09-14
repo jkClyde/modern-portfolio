@@ -168,6 +168,16 @@ const Work = () => {
             pin: true,
             pinSpacing: true,
             scrub: isMobile ? MOBILE_SCRUB : DESKTOP_SCRUB,
+            // On a fast flick, the scroll delta between two Lenis/ScrollTrigger
+            // updates can jump across the entire pinned range in one tick.
+            // fastScrollEnd tells ScrollTrigger to snap straight to whichever
+            // boundary (pinned-in or released) instead of trying to interpolate
+            // through it — without this, a quick upward flick could leave the
+            // section "stuck" pinned on top of About for a moment.
+            fastScrollEnd: true,
+            // Precomputes the pin position a tick early so there's no lag/flash
+            // right at the pin boundary during fast scrolling.
+            anticipatePin: 1,
             onUpdate: (self) => {
                 const progress = self.progress;
                 const activeIndex = Math.min(

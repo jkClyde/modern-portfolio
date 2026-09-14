@@ -3,7 +3,7 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 import { useLenis } from "lenis/react";
 import { TiLocationArrow } from "react-icons/ti";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Button from "./Button";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 // ---- tunables, named instead of scattered magic numbers ----
 const MOBILE_BREAKPOINT = "(max-width: 767px)";
 const EDGE_MARGIN = 16; // px, keeps the "combined name" measurement on-screen
-const INTRO_DELAY = 0.5;
+const INTRO_DELAY = 0.2; // small buffer once loader clears, not a load-time guess
 const VIDEO_FADE_DELAY = 0.6;
 const CHROME_FADE_DELAY = 0.9; // navbar + hero details
 
@@ -26,6 +26,11 @@ const Hero = () => {
   const firstNameRef = useRef(null);
   const lastNameRef = useRef(null);
   const videoFrameRef = useRef(null);
+
+  // Holds the built-but-paused intro timeline, and whether we're
+  // on the mobile (no-animation) code path.
+  const introTimelineRef = useRef(null);
+  const isMobileRef = useRef(false);
 
   const handleVideoLoad = () => setLoading(false);
 
@@ -53,6 +58,10 @@ const Hero = () => {
     });
   };
 
+  // Runs once on mount: sets initial visual states and, on desktop,
+  // BUILDS the intro timeline paused. It does NOT play it — playback
+  // is gated on the `loading` effect below, so it can never run ahead
+  // of (or finish underneath) the loader.
   useGSAP(
     () => {
       const video = videoRef.current;
@@ -64,6 +73,7 @@ const Hero = () => {
       if (!video || !firstName || !lastName || !videoFrame) return;
 
       const isMobile = window.matchMedia(MOBILE_BREAKPOINT).matches;
+      isMobileRef.current = isMobile;
 
       // --------------------------------------------------
       // MOBILE: skip the text-position animation and the
@@ -102,16 +112,8 @@ const Hero = () => {
         borderRadius: "0% 0% 40% 10%",
       });
 
-      // Lock scroll (via Lenis) for the duration of the intro animation.
+      // Lock scroll (via Lenis) until the intro animation completes.
       lenis?.stop();
-
-      const intro = gsap.timeline({
-        delay: INTRO_DELAY,
-        onComplete: () => {
-          playVideoSafely(video);
-          lenis?.start();
-        },
-      });
 
       // --------------------------------------------------
       // BUILD A HIDDEN REFERENCE TO MEASURE "RANDALL AQUIN"
@@ -171,6 +173,17 @@ const Hero = () => {
       const lastX = targetLastLeft - lastRect.left;
       const lastY = targetLastTop - lastRect.top;
 
+      // Built PAUSED. It only starts once the loading effect below
+      // sees `loading === false` and calls .play() on it.
+      const intro = gsap.timeline({
+        paused: true,
+        delay: INTRO_DELAY,
+        onComplete: () => {
+          playVideoSafely(video);
+          lenis?.start();
+        },
+      });
+
       intro.fromTo(
         firstName,
         { x: firstX, y: firstY, color: "black", opacity: 1 },
@@ -193,6 +206,8 @@ const Hero = () => {
 
       intro.to("#hero-details", { opacity: 1, duration: 1.5, ease: "power2.inOut" }, CHROME_FADE_DELAY);
 
+      introTimelineRef.current = intro;
+
       setupFrameScrollReveal();
 
       // Safety net: if the component unmounts before the intro
@@ -203,6 +218,15 @@ const Hero = () => {
     },
     { dependencies: [lenis] }
   );
+
+  // Plays the (already-built) intro timeline the moment the loader
+  // actually clears — i.e. once the video has really finished loading —
+  // instead of racing it against a fixed timer set at mount.
+  useEffect(() => {
+    if (!loading && !isMobileRef.current && introTimelineRef.current) {
+      introTimelineRef.current.play();
+    }
+  }, [loading]);
 
   return (
     <div className="relative h-dvh w-screen overflow-x-hidden">
